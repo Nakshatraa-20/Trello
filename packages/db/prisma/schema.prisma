@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User{
+  id             Int        @id        @default(autoincrement())
+  email         String     @unique    
+  password      String
+  membership    Membership[]
+  issueMapping   IssueMapping[]
+  comment       Comment[]
+  
+}
+
+
+model  Org{
+  id                Int         @id        @default(autoincrement())
+  name              String      @unique
+  description       String      
+  boards            Boards[]
+  membership        Membership[]
+
+}
+
+
+model Boards{
+  id       Int       @id     @default(autoincrement())
+  title    String    
+  orgId    Int       
+  org      Org      @relation(fields:[orgId], references:[id])
+  section  Section[]
+  issue    Issue[]
+}
+
+
+model Section{
+id       Int       @id      @default(autoincrement())
+title    String
+boardId  Int        
+board    Boards     @relation(fields:[boardId], references:id)
+issues   Issue[]
+}
+
+
+model Issue{
+  id            Int       @id     @default(autoincrement())
+  title       String    
+  boardId       Int
+  board       Boards  @relation(fields:[boardId],references:id)
+  sectionId    Int
+  section      Section  @relation(fields:[sectionId],references:id) 
+  issuemapping  IssueMapping[]
+  comment        Comment[]
+}
+
+
+model  Membership{
+  id         Int      @id     @default(autoincrement())
+  role    String  
+  userId   Int
+  user    User  @relation(fields:[userId],references:id) 
+
+  orgId   Int
+  org    Org    @relation(fields:[orgId],references:id)
+
+
+}
+
+
+model IssueMapping {
+  id     Int     @id      @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  issueId Int
+  issue   Issue @relation(fields: [issueId], references: [id])
+}
+
+
+model Comment{
+  id         Int     @id     @default(autoincrement())
+
+  userId     Int
+  user       User    @relation(fields:[userId], references:id)
+
+  issueId    Int
+  issue      Issue    @relation(fields:[issueId],references:id)
+}
+
+
