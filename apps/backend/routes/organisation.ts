@@ -1,11 +1,13 @@
 import express from "express"
 import prisma from "db/client"
+import {authMiddleware} from "../middleware/auth"
 
 const app= express()
-app.post("/create-org",authmiddleware,async(req,res)=>{
+app.use(authMiddleware)
+app.post("/create-org",async(req,res)=>{
     
 
- const organisation = await prisma.Org.create({
+ const organisation = await prisma.org.create({
         data:{
             
             name: req.body.name,
@@ -25,7 +27,7 @@ app.post("/create-org",authmiddleware,async(req,res)=>{
     })
 })
 
-app.get("/getorg",authmiddleware,async(req,res)=>{
+app.get("/getorg",async(req,res)=>{
     
     
     await prisma.membership.findMany({
@@ -36,7 +38,7 @@ app.get("/getorg",authmiddleware,async(req,res)=>{
     })
 })
 
-app.delete("/delete-org",authmiddleware,async(req,res)=>
+app.delete("/delete-org",async(req,res)=>
 {
    const member= prisma.membership.findFirst({
     where:{
@@ -51,20 +53,17 @@ app.delete("/delete-org",authmiddleware,async(req,res)=>
     })
    }
 
-   await prisma.membership.delete({
+      
+    
+   
+   await prisma.org.delete({
     where:{
         
-        orgId: req.body.orgId,
-        
-    }
-   })
-   await prisma.Org.delete({
-    where:{
         id: req.body.orgId
     }
    })
-})
 
+})
 
 
 

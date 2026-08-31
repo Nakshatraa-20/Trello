@@ -1,10 +1,12 @@
 import express from "express"
 import prisma from "db/client"
+import {authMiddleware} from "../middleware/auth" 
 
 const app= express()
+app.use(authMiddleware)
 
-app.post("post-issues",authmiddleware,async(req,res)=>{
-    const board= prisma.board.findFirst({
+app.post("post-issues",async(req,res)=>{
+    const board= prisma.boards.findFirst({
         where:{
             boardId:req.body.boardId
         }
@@ -31,8 +33,8 @@ if(!membership)({
 
 })
 
-app.post("/delete-section",authmiddleware,async(req,res)=>{
-    const board= prisma.board.findFirst({
+app.post("/delete-section",async(req,res)=>{
+    const board= prisma.boards.findFirst({
         where:{
             boardId:req.body.boardId
         }
@@ -51,7 +53,7 @@ if(!membership)({
     message: "no membership found"
 })
 
-await prisma.section.delete({
+await prisma.section.deleteMany({
     where:{
         title:req.body.title
     }

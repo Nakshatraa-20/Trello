@@ -1,7 +1,8 @@
 import express from "express"
 import jwt from "jsonwebtoken"
-import {prisma} from "db/client"
+import prisma from "db/client"
 import bcrypt from "bcrypt"
+import { signupSchema } from "../validators/auth"
 
 const app=express()
 
@@ -22,7 +23,7 @@ app.post("signup",async(req,res)=>{
         }
     })
 
-    if(userExists){
+    if(!userExists){
         res.status(403).json({
             message:"user already exists"
         })
@@ -30,7 +31,7 @@ app.post("signup",async(req,res)=>{
          const user = prisma.user.create({
             data:{
                 username:username,
-                pasword:hashedpassword
+                password:hashedpassword
             }
          })
 
@@ -39,7 +40,7 @@ app.post("signup",async(req,res)=>{
          })
 })
 
-app.post("signin",(req,res)=>{
+app.post("signin",async(req,res)=>{
     const user= await prisma.user.findUnique({
         where:{
             username: req.body.username

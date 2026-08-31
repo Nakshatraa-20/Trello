@@ -1,12 +1,12 @@
 import express from "express"
-import {prisma} from "db/client"
-import { authMiddleawre } from "../middleware/auth"
+import prisma from "db/client"
+import { authMiddleware} from "../middleware/auth"
 
 const app= express()
 
-app.use(authMiddleawre)
+app.use(authMiddleware)
 
-app.post("/board-post",authmiddleware,async(req,res)=>
+app.post("/board-post",async(req,res)=>
 {
     const membership= prisma.membership.findFirst({
              where:{
@@ -34,7 +34,7 @@ app.post("/board-post",authmiddleware,async(req,res)=>
 
 })
 
-app.get("/boards",authmiddleware,async(req,res)=>
+app.get("/boards",async(req,res)=>
 {
     const membership= prisma.membership.findFirst({
         where:{
@@ -46,7 +46,7 @@ app.get("/boards",authmiddleware,async(req,res)=>
 if(!membership)
 {
    res.status(403).json({
-       message:"not a member of the org"
+       message:"not a member of the org"  
    })
 }
     
@@ -58,12 +58,13 @@ if(!membership)
      })
 })
 
-app.delete("/boards-delete",authmiddleware,async(req,res)=>
+app.delete("/boards-delete",async(req,res)=>
 {
     const membership= prisma.membership.findFirst({
         where:{
            orgId:req.body.orgId,
-           userId:(req as any).userId
+           userId:(req as any).userId,
+           role:"admin"
         }
 })
 
@@ -74,9 +75,11 @@ if(!membership)
    })
 }
 
- await prisma.boards.delete({
+ await prisma.boards.deleteMany({
     where:{
         orgId:req.body.orgId
+        
+        
     }
  })
 
@@ -84,12 +87,12 @@ if(!membership)
 }
 )
 
-app.delete("/board-delete",authmiddleware,async(req,res)=>
+app.delete("/board-delete",async(req,res)=>
 {
    const membership= prisma.membership.findFirst({
       where:{
          orgId:req.body.orgId,
-         userId:req.body.userId
+         userId:(req as any).userId
       }
    })
 

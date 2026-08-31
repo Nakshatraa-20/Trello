@@ -15,12 +15,11 @@ datasource db {
 
 model User{
   id             Int        @id        @default(autoincrement())
-  email         String     @unique    
+  username       String     @unique    
   password      String
   membership    Membership[]
-  issueMapping   IssueMapping[]
+  issueMapping  IssueMapping[]
   comment       Comment[]
-  
 }
 
 
@@ -37,7 +36,7 @@ model  Org{
 model Boards{
   id       Int       @id     @default(autoincrement())
   title    String    
-  orgId    Int       
+  orgId    Int       @unique
   org      Org      @relation(fields:[orgId], references:[id])
   section  Section[]
   issue    Issue[]
@@ -55,7 +54,8 @@ issues   Issue[]
 
 model Issue{
   id            Int       @id     @default(autoincrement())
-  title       String    
+  title       String   
+  description  String 
   boardId       Int
   board       Boards  @relation(fields:[boardId],references:id)
   sectionId    Int
@@ -73,8 +73,6 @@ model  Membership{
 
   orgId   Int
   org    Org    @relation(fields:[orgId],references:id)
-
-
 }
 
 
@@ -91,6 +89,8 @@ model IssueMapping {
 
 model Comment{
   id         Int     @id     @default(autoincrement())
+
+  content    String  
 
   userId     Int
   user       User    @relation(fields:[userId], references:id)

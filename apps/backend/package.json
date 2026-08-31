@@ -10,8 +10,14 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "brcypt": "^1.0.1",
+    "db": "*",
     "express": "^5.2.1",
-    "db": "*"
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.4.3"
   }
 }
