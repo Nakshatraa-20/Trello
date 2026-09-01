@@ -2,10 +2,10 @@ import express from "express"
 import prisma from "db/client"
 import {authMiddleware} from "../middleware/auth"
 
-const app= express()
-app.use(authMiddleware)
+const router= express.Router()
+router.use(authMiddleware)
 
-app.post("/create-issue",async(req,res)=>{
+router.post("/create-issue",async(req,res)=>{
     
         const board= await prisma.boards.findUnique({
             where:{
@@ -56,7 +56,7 @@ app.post("/create-issue",async(req,res)=>{
         })
     })
     
-    app.get("/issues/board/:boardId", async(req,res)=>
+    router.get("/issues/board/:boardId", async(req,res)=>
         {
     const boardId= Number(req.params.boardId)
         const board= await prisma.boards.findUnique({
@@ -93,7 +93,7 @@ app.post("/create-issue",async(req,res)=>{
         res.json(issues )
     })
 
-    app.get("/issues/section/:sectionId", async(req,res)=> {
+    router.get("/issues/section/:sectionId", async(req,res)=> {
         const section= await prisma.section.findFirst({
             where:{
                 id:Number(req.params.sectionId)
@@ -142,7 +142,7 @@ app.post("/create-issue",async(req,res)=>{
     })
    
 
-    app.get("/issue/:issueId", async(req,res)=>{
+router.get("/issue/:issueId", async(req,res)=>{
              
         const issue= await prisma.issue.findFirst({
             where:{
@@ -194,6 +194,6 @@ app.post("/create-issue",async(req,res)=>{
     }
     })
 
-    
+    export default router
 
 

@@ -2,9 +2,9 @@ import express from "express"
 import prisma from "db/client"
 import {authMiddleware} from "../middleware/auth"
 
-const app= express()
-app.use(authMiddleware)
-app.post("/create-org",async(req,res)=>{
+const router= express.Router()
+router.use(authMiddleware)
+router.post("/create-org",async(req,res)=>{
     
 
  const organisation = await prisma.org.create({
@@ -27,7 +27,7 @@ app.post("/create-org",async(req,res)=>{
     })
 })
 
-app.get("/getorg",async(req,res)=>{
+router.get("/getorg",async(req,res)=>{
     
     
     await prisma.membership.findMany({
@@ -38,7 +38,7 @@ app.get("/getorg",async(req,res)=>{
     })
 })
 
-app.delete("/delete-org",async(req,res)=>
+router.delete("/delete-org",async(req,res)=>
 {
    const member= prisma.membership.findFirst({
     where:{
@@ -65,7 +65,7 @@ app.delete("/delete-org",async(req,res)=>
 
 })
 
-
+export default router
 
 
 

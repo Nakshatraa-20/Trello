@@ -4,9 +4,9 @@ import prisma from "db/client"
 import bcrypt from "bcrypt"
 import { signupSchema } from "../validators/auth"
 
-const app=express()
+const router= express.Router()
 
-app.post("signup",async(req,res)=>{
+router.post("/signup",async(req,res)=>{
 
     const result= signupSchema.safeParse(req.body)
     if (!result.success){
@@ -17,7 +17,7 @@ app.post("signup",async(req,res)=>{
     const username= req.body.username
     const hashedpassword= await bcrypt.hash(req.body.password, 10)
 
-    const userExists= prisma.user.findFirst({
+    const userExists= await prisma.user.findFirst({
         where:{
             username: username
         }
@@ -28,7 +28,7 @@ app.post("signup",async(req,res)=>{
             message:"user already exists"
         })
     }
-         const user = prisma.user.create({
+         await prisma.user.create({
             data:{
                 username:username,
                 password:hashedpassword
@@ -40,7 +40,7 @@ app.post("signup",async(req,res)=>{
          })
 })
 
-app.post("signin",async(req,res)=>{
+router.post("/signin",async(req,res)=>{
     const user= await prisma.user.findUnique({
         where:{
             username: req.body.username
@@ -61,7 +61,7 @@ app.post("signin",async(req,res)=>{
             })
         }
 
-        const token= jwt.sign({id:user.id},)
+        const token= jwt.sign({userId:user.id},process.env.JWT_SECRET!)
 
         res.json({
             message:token
@@ -69,7 +69,7 @@ app.post("signin",async(req,res)=>{
 
     })
 
-    
+    export default router 
 
     
 

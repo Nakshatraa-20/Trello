@@ -2,11 +2,11 @@ import express from "express"
 import prisma from "db/client"
 import { authMiddleware} from "../middleware/auth"
 
-const app= express()
+const router= express.Router()
 
-app.use(authMiddleware)
+router.use(authMiddleware)
 
-app.post("/board-post",async(req,res)=>
+router.post("/board-post",async(req,res)=>
 {
     const membership= prisma.membership.findFirst({
              where:{
@@ -34,7 +34,7 @@ app.post("/board-post",async(req,res)=>
 
 })
 
-app.get("/boards",async(req,res)=>
+router.get("/boards",async(req,res)=>
 {
     const membership= prisma.membership.findFirst({
         where:{
@@ -58,7 +58,7 @@ if(!membership)
      })
 })
 
-app.delete("/boards-delete",async(req,res)=>
+router.delete("/boards-delete",async(req,res)=>
 {
     const membership= prisma.membership.findFirst({
         where:{
@@ -87,7 +87,7 @@ if(!membership)
 }
 )
 
-app.delete("/board-delete",async(req,res)=>
+router.delete("/board-delete",async(req,res)=>
 {
    const membership= prisma.membership.findFirst({
       where:{
@@ -110,6 +110,5 @@ app.delete("/board-delete",async(req,res)=>
    })
 })
 
-
-
+export default router
 

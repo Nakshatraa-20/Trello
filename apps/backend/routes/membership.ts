@@ -1,10 +1,10 @@
 import prisma from "db/client"
 import express from "express"
 
-const app= express()
+const router= express.Router()
 
 
-app.post("/join-org",async(req,res)=>
+router.post("/join-org",async(req,res)=>
  {
     const membership= await prisma.membership.create({
         data:{
@@ -16,4 +16,8 @@ app.post("/join-org",async(req,res)=>
       return res.status(201).json({
         message:"joined organisation successfully"
       })
+
+      return res.json(membership)
 })
+
+export default router

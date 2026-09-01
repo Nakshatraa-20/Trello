@@ -38,42 +38,8 @@ wss.on("connection", async (socket) => {
 
   connections.push(socket);
 
-  try {
-    const issues: Issue[] = await prisma.issue.findMany();
-
-    console.log("issues in ws", issues)
-
-    socket.send(JSON.stringify({
-      type: "initial_state",
-      issues,
-    }));
-  } catch (error) {
-    console.error("Could not load initial issues", error);
-    socket.send(JSON.stringify({
-      type: "error",
-      message: "Could not load issues",
-    }));
-  }
-
   socket.on("message", async (data) => {
-    try {
-      const parsedData = JSON.parse(data.toString()) as ClientMessage;
-
-      console.log("parsedData ws", parsedData)
-
-      if (parsedData.type === "issue_added") {
-        if (!parsedData.title || !parsedData.boardId || !parsedData.sectionId) {
-          return;
-        }
-
-        const newIssue = await prisma.issue.create({
-          data: {
-            title: parsedData.title,
-            boardId: parsedData.boardId,
-            sectionId: parsedData.sectionId,
-            description: parsedData.description ?? "",
-          },
-        });
+    
 
         broadcast({
           type: "issue_added",
@@ -86,10 +52,7 @@ wss.on("connection", async (socket) => {
           return;
         }
 
-        await prisma.issue.delete({
-          where: { id: parsedData.issueId },
-        });
-
+       
         broadcast({
           type: "delete_issue",
           issueId: parsedData.issueId,
@@ -101,11 +64,7 @@ wss.on("connection", async (socket) => {
           return;
         }
 
-        const updatedIssue = await prisma.issue.update({
-          where: { id: parsedData.issueId },
-          data: { sectionId: parsedData.sectionId },
-        });
-
+       
         broadcast({
           type: "issue_moved",
           issue: updatedIssue,
@@ -139,3 +98,5 @@ wss.on("listening", () => {
 wss.on("error", (error) => {
   console.error("WebSocket server failed to start", error);
 });
+
+
