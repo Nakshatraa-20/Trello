@@ -1,119 +1,74 @@
-import express from "express"
-import prisma from "db/client"
-import {authMiddleware} from "../middleware/auth" 
+import express from "express";
+import prisma from "db/client";
+import { authMiddleware } from "../middleware/auth";
 
-const router= express.Router()
-router.use(authMiddleware)
+const router = express.Router();
+router.use(authMiddleware);
 
-router.post("/post-section",async(req,res)=>{
-    const board= await prisma.boards.findFirst({
-        where:{
-            id:req.body.boardId
-        }
-    })
+router.post("/post-section", async (req, res) => {
+  const boardId = Number(req.body.boardId);
+  const board = await prisma.boards.findUnique({ where: { id: boardId } });
 
-      if(!board){
-        return res.status(403).json({
-            message:" board not found"
-        })
-      }
+  if (!board) {
+    return res.status(404).json({ message: "Board not found" });
+  }
 
-const membership = await prisma.membership.findFirst({
-    where: {
-        userId: (req as any).userId,
-        orgId: board.orgId
-    }
-})
+  const membership = await prisma.membership.findFirst({
+    where: { userId: (req as any).userId, orgId: board.orgId },
+  });
 
+  if (!membership) {
+    return res.status(403).json({ message: "Not a member of this organisation" });
+  }
 
-if(!membership)({
-    message: "no membership found"
-})
+  const section = await prisma.section.create({
+    data: { title: req.body.title, boardId },
+  });
 
+  return res.status(201).json({ section });
+});
 
-      await prisma.section.create({
-        data:{
-            
-            title:req.body.title,
-            boardId: board.id
-        }
-      })
+router.delete("/delete-section", async (req, res) => {
+  const sectionId = Number(req.body.sectionId);
+  const section = await prisma.section.findUnique({
+    where: { id: sectionId },
+    include: { board: true },
+  });
 
-})
+  if (!section) {
+    return res.status(404).json({ message: "Section not found" });
+  }
 
-router.post("/delete-section",async(req,res)=>{
-    const board= await prisma.boards.findFirst({
-        where:{
-            id:req.body.boardId
-        }
-    })
-   
-      if(!board){
-        return res.status(403).json({
-            message:" board not found"
-        })
-      }
+  const membership = await prisma.membership.findFirst({
+    where: { userId: (req as any).userId, orgId: section.board.orgId, role: "admin" },
+  });
 
-const membership = await prisma.membership.findFirst({
-    where: {
-        userId: (req as any).userId,
-        orgId: board.orgId
-    }
-})
+  if (!membership) {
+    return res.status(403).json({ message: "Admin access required" });
+  }
 
+  await prisma.section.delete({ where: { id: sectionId } });
+  return res.status(204).send();
+});
 
-if(!membership)({
-    message: "no membership found"
-})
+router.get("/section/:boardId", async (req, res) => {
+  const boardId = Number(req.params.boardId);
+  const board = await prisma.boards.findUnique({ where: { id: boardId } });
 
+  if (!board) {
+    return res.status(404).json({ message: "Board not found" });
+  }
 
+  const membership = await prisma.membership.findFirst({
+    where: { userId: (req as any).userId, orgId: board.orgId },
+  });
 
-await prisma.section.delete({
-    where:
-    {
-        id:req.body.sectionId
-    }
+  if (!membership) {
+    return res.status(403).json({ message: "Not a member of this organisation" });
+  }
 
-})
-})
+  const sections = await prisma.section.findMany({ where: { boardId } });
+  return res.json({ sections });
+});
 
-router.get("/section/:boardId", async(req,res)=>
-{
-    const board= await prisma.boards.findFirst({
-        where:{
-            id:Number(req.params.boardId)
-        }
-    })
-
-      if(!board){
-        return res.status(403).json({
-            message:" board not found"
-        })
-      }
-
-const membership = await prisma.membership.findFirst({
-    where: {
-        userId: (req as any).userId,
-        orgId: board.orgId
-    }
-})
-
-
-if(!membership)({
-    message: "no membership found"
-})
-
-const sections=await prisma.section.findMany({
-    where:{
-        boardId: board.id
-    }
-})
-
-res.json(sections)
-
-})
-
-export default router
-
-
-
+export default router;

@@ -1,79 +1,56 @@
-import express from "express"
-import jwt from "jsonwebtoken"
-import prisma from "db/client"
-import bcrypt from "bcrypt"
-import { signupSchema } from "../validators/auth"
+import express from "express";
+import jwt from "jsonwebtoken";
+import prisma from "db/client";
+import bcrypt from "bcrypt";
+import { signinSchema, signupSchema } from "../validators/auth";
 
-const router= express.Router()
+const router = express.Router();
 
-router.post("/signup",async(req,res)=>{
+router.post("/signup", async (req, res) => {
+  const result = signupSchema.safeParse(req.body);
 
-    const result= signupSchema.safeParse(req.body)
-    if (!result.success){
-        res.status(403).json({
-            message: "Invalid Input"
-        })
-    }
-    const username= req.body.username
-    const hashedpassword= await bcrypt.hash(req.body.password, 10)
+  if (!result.success) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
 
-    const userExists= await prisma.user.findFirst({
-        where:{
-            username: username
-        }
-    })
+  const { username, password } = result.data;
+  const userExists = await prisma.user.findUnique({ where: { username } });
 
-    if(!userExists){
-        res.status(403).json({
-            message:"user already exists"
-        })
-    }
-         await prisma.user.create({
-            data:{
-                username:username,
-                password:hashedpassword
-            }
-         })
+  if (userExists) {
+    return res.status(409).json({ message: "User already exists" });
+  }
 
-         res.json({
-            message: "user created successfully"
-         })
-})
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await prisma.user.create({
+    data: { username, password: hashedPassword },
+  });
 
-router.post("/signin",async(req,res)=>{
-    const user= await prisma.user.findUnique({
-        where:{
-            username: req.body.username
-        }
-        
-            
-        })
-        if(!user){
-            return res.status(403).json({
-                  message:"no such user exists"
-            })
-        }
+  return res.status(201).json({
+    message: "User created successfully",
+    user: { id: user.id, username: user.username },
+  });
+});
 
-        const matchedPassword= await bcrypt.compare(user.password,req.body.password)
-        if(!matchedPassword){
-            res.status(403).json({
-                message:"incorrect password"
-            })
-        }
+router.post("/signin", async (req, res) => {
+  const result = signinSchema.safeParse(req.body);
 
-        const token= jwt.sign({userId:user.id},process.env.JWT_SECRET!)
+  if (!result.success) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
 
-        res.json({
-            message:token
-        })
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ message: "JWT_SECRET is not configured" });
+  }
 
-    })
+  const { username, password } = result.data;
+  const user = await prisma.user.findUnique({ where: { username } });
 
-    export default router 
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ message: "Invalid username or password" });
+  }
 
-    
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+  return res.json({ token });
+});
 
-
-    
-
-
+export default router;

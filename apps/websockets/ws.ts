@@ -1,6 +1,5 @@
 import { WebSocket, WebSocketServer } from "ws";
-import prisma from "db/client";
-import "dotenv/config"
+
 
 
 interface Issue {
@@ -23,8 +22,7 @@ interface ClientMessage {
 const wss = new WebSocketServer({ port: 3002 });
 const connections: WebSocket[] = [];
 
-//check 
-console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
+
 
 function broadcast(message: object) {
   connections.forEach((socket) => {

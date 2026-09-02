@@ -1,114 +1,74 @@
-import express from "express"
-import prisma from "db/client"
-import { authMiddleware} from "../middleware/auth"
+import express from "express";
+import prisma from "db/client";
+import { authMiddleware } from "../middleware/auth";
 
-const router= express.Router()
+const router = express.Router();
+router.use(authMiddleware);
 
-router.use(authMiddleware)
+router.post("/board-post", async (req, res) => {
+  const orgId = Number(req.body.orgId);
+  const membership = await prisma.membership.findFirst
+  ({
+    where: 
+    { orgId, 
+    userId: (req as any).userId },
+  });
 
-router.post("/board-post",async(req,res)=>
-{
-    const membership= prisma.membership.findFirst({
-             where:{
-                orgId:req.body.orgId,
-                userId:(req as any).userId
-             }
-    })
-  
-     if(!membership)
-     {
-        res.status(403).json({
-            message:"not a member of the org"
-        })
-     }
+  if (!membership) {
+    return res.status(403).json({ message: "Not a member of the organisation" });
+  }
 
-     await prisma.boards.create({
-        data:{
-            title:req.body.title,
-            orgId: req.body.orgId
-        }
-     })
-     res.json({
-        message:"board created successfully"
-     })
+  const board = await prisma.boards.create({
+    data: 
+    { 
+      title: req.body.title, 
+      orgId 
+   },
+  });
 
-})
+  return res.status(201).json({ board });
+});
 
-router.get("/boards",async(req,res)=>
-{
-    const membership= prisma.membership.findFirst({
-        where:{
-           orgId:req.body.orgId,
-           userId:(req as any).userId
-        }
-})
+router.get("/boards", async (req, res) => {
+  const orgId = Number(req.query.orgId);
+  const membership = await prisma.membership.findFirst
+  ({
+    where: 
+    { orgId, 
+      userId: (req as any).userId },
+  });
 
-if(!membership)
-{
-   res.status(403).json({
-       message:"not a member of the org"  
-   })
-}
-    
-     await prisma.boards.findMany({
-        where:
-        {
-            orgId: req.body.orgId
-        }
-     })
-})
+  if (!membership) {
+    return res.status(403).json
+    ({ message: "Not a member of the organisation" });
+  }
 
-router.delete("/boards-delete",async(req,res)=>
-{
-    const membership= prisma.membership.findFirst({
-        where:{
-           orgId:req.body.orgId,
-           userId:(req as any).userId,
-           role:"admin"
-        }
-})
+  const boards = await prisma.boards.findMany
+  ({ where: 
+   { orgId } });
+  return res.json({ boards });
+});
 
-if(!membership)
-{
-   res.status(403).json({
-       message:"not a member of the org"
-   })
-}
+router.delete("/board-delete", async (req, res) => {
+  const boardId = Number(req.body.boardId);
+  const board = await prisma.boards.findUnique
+  ({ where: 
+   { id: boardId } });
 
- await prisma.boards.deleteMany({
-    where:{
-        orgId:req.body.orgId
-        
-        
-    }
- })
+  if (!board) {
+    return res.status(404).json({ message: "Board not found" });
+  }
 
+  const membership = await prisma.membership.findFirst({
+    where: { orgId: board.orgId, userId: (req as any).userId, role: "admin" },
+  });
 
-}
-)
+  if (!membership) {
+    return res.status(403).json({ message: "Admin access required" });
+  }
 
-router.delete("/board-delete",async(req,res)=>
-{
-   const membership= prisma.membership.findFirst({
-      where:{
-         orgId:req.body.orgId,
-         userId:(req as any).userId
-      }
-   })
+  await prisma.boards.delete({ where: { id: boardId } });
+  return res.status(204).send();
+});
 
-   if(!membership){
-      return res.status(403).json({
-         message:"not a member of the org"
-      })
-   }
-
-   const board = await prisma.boards.findFirst({
-      where: {
-         id:req.body.boardId,
-         orgId: req.body.orgId
-      }
-   })
-})
-
-export default router
-
+export default router;

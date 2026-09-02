@@ -36,7 +36,7 @@ model  Org{
 model Boards{
   id       Int       @id     @default(autoincrement())
   title    String    
-  orgId    Int       @unique
+  orgId    Int
   org      Org      @relation(fields:[orgId], references:[id])
   section  Section[]
   issue    Issue[]
@@ -98,5 +98,4 @@ model Comment{
   issueId    Int
   issue      Issue    @relation(fields:[issueId],references:id)
 }
-
 
