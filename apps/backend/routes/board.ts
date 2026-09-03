@@ -3,7 +3,7 @@ import prisma from "db/client";
 import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
-router.use(authMiddleware);
+
 
 router.post("/board-post", async (req, res) => {
   const orgId = Number(req.body.orgId);
@@ -47,6 +47,20 @@ router.get("/boards", async (req, res) => {
   ({ where: 
    { orgId } });
   return res.json({ boards });
+});
+
+router.delete("/boards-delete", async (req, res) => {
+  const orgId = Number(req.body.orgId);
+  const membership = await prisma.membership.findFirst({
+    where: { orgId, userId: (req as any).userId, role: "admin" },
+  });
+
+  if (!membership) {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+
+  const result = await prisma.boards.deleteMany({ where: { orgId } });
+  return res.json({ deletedCount: result.count });
 });
 
 router.delete("/board-delete", async (req, res) => {

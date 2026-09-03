@@ -3,8 +3,8 @@
   "module": "src/index.ts",
   "type": "module",
   "private": true,
-  "exports":{
-     "./client":"./src/index.ts"
+  "exports": {
+    "./client": "./src/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -13,6 +13,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "dotenv": "^17.4.2"
+    "@prisma/adapter-pg": "^7.10.0",
+    "dotenv": "^17.4.2",
+    "pg": "^8.23.0"
   }
 }

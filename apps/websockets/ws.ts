@@ -1,100 +1,143 @@
-import { WebSocket, WebSocketServer } from "ws";
-
-
-
 interface Issue {
   id: number;
   title: string;
   boardId: number;
   sectionId: number;
-  description: string
+  description: string;
 }
 
-interface ClientMessage {
-  type: "issue_added" | "delete_issue" | "move_issue";
-  title?: string;
-  boardId?: number;
-  sectionId?: number;
-  issueId?: number;
-  description?: string;
+interface BroadcastMessage {
+  type:
+    | "issue_created"
+    | "issue_deleted"
+    | "issue_moved"
+    | "issue_updated";
+
+  room: string;
+
+  payload: {
+    issue?: Issue;
+    issueId?: number;
+  };
 }
 
-const wss = new WebSocketServer({ port: 3002 });
-const connections: WebSocket[] = [];
+interface SocketConnection {
+  socket: ServerWebSocket<unknown>;
+  room: string;
+}
 
+const allSockets: SocketConnection[] = [];
 
+function broadcast(room: string, message: BroadcastMessage) {
+  const parsedMessage = JSON.stringify(message);
 
-function broadcast(message: object) {
-  connections.forEach((socket) => {
-    if (socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify(message));
+  for (let i = 0; i < allSockets.length; i++) {
+    if (allSockets[i].room === room) {
+      allSockets[i].socket.send(parsedMessage);
     }
-  });
+  }
 }
 
-wss.on("connection", async (socket) => {
+const server = Bun.serve({
+  port: 3002,
 
-  connections.push(socket);
+  async fetch(req, server) {
+    const url = new URL(req.url);
 
-  socket.on("message", async (data) => {
-    
+    // Backend → WebSocket server
+    if (req.method === "POST" && url.pathname === "/broadcast") {
+      try {
+        const message = (await req.json()) as BroadcastMessage;
 
-        broadcast({
-          type: "issue_added",
-          issue: newIssue,
+        console.log("Broadcast message:", message);
+
+        broadcast(message.room, message);
+
+        return Response.json({
+          success: true,
+        });
+      } catch (error) {
+        console.error("Broadcast failed:", error);
+
+        return Response.json(
+          {
+            success: false,
+            message: "Invalid broadcast message",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
+
+    // Frontend → WebSocket connection
+    if (url.pathname === "/ws") {
+      const room = url.searchParams.get("room");
+
+      if (!room) {
+        return new Response("Room is required", {
+          status: 400,
         });
       }
 
-      if (parsedData.type === "delete_issue") {
-        if (!parsedData.issueId) {
-          return;
-        }
+      const upgraded = server.upgrade(req, {
+        data: {
+          room,
+        },
+      });
 
-       
-        broadcast({
-          type: "delete_issue",
-          issueId: parsedData.issueId,
-        });
+      if (upgraded) {
+        return;
       }
 
-      if (parsedData.type === "move_issue") {
-        if (!parsedData.issueId || !parsedData.sectionId) {
-          return;
-        }
-
-       
-        broadcast({
-          type: "issue_moved",
-          issue: updatedIssue,
-        });
-      }
-    } catch (error) {
-      console.error("WebSocket message failed", error);
-
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-          type: "error",
-          message: "Could not process message",
-        }));
-      }
+      return new Response("WebSocket upgrade failed", {
+        status: 500,
+      });
     }
-  });
 
-  socket.on("close", () => {
-    const index = connections.indexOf(socket);
+    return new Response("Not Found", {
+      status: 404,
+    });
+  },
 
-    if (index !== -1) {
-      connections.splice(index, 1);
-    }
-  });
+  websocket: {
+    open(socket) {
+      const room = socket.data.room as string;
+
+      console.log(`Client connected to room: ${room}`);
+
+      allSockets.push({
+        socket,
+        room,
+      });
+    },
+
+    message(socket, message) {
+      console.log("Message from client:", message);
+
+      // We don't perform issue CRUD here.
+      // CRUD is handled by your HTTP backend.
+    },
+
+    close(socket) {
+      const index = allSockets.findIndex(
+        (connection) => connection.socket === socket
+      );
+
+      if (index !== -1) {
+        allSockets.splice(index, 1);
+      }
+
+      console.log("Client disconnected");
+    },
+  },
 });
 
-wss.on("listening", () => {
-  console.log("WebSocket server running on ws://localhost:3002");
-});
+console.log(
+  `WebSocket server running on ws://localhost:${server.port}/ws`
+);
 
-wss.on("error", (error) => {
-  console.error("WebSocket server failed to start", error);
-});
-
-
+console.log(
+  `Broadcast endpoint: http://localhost:${server.port}/broadcast`
+);

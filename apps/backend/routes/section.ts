@@ -3,7 +3,7 @@ import prisma from "db/client";
 import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
-router.use(authMiddleware);
+
 
 router.post("/post-section", async (req, res) => {
   const boardId = Number(req.body.boardId);
@@ -51,7 +51,7 @@ router.delete("/delete-section", async (req, res) => {
   return res.status(204).send();
 });
 
-router.get("/section/:boardId", async (req, res) => {
+router.get("/:boardId", async (req, res) => {
   const boardId = Number(req.params.boardId);
   const board = await prisma.boards.findUnique({ where: { id: boardId } });
 
