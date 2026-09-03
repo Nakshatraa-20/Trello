@@ -1,5 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useRef} from "react";
 
 /* interface Issue {
   id: number;
@@ -16,7 +16,7 @@ interface Section{
 }
 function App(){
 const [sections, setSections]= useState<Section[]>([])
- 
+const newSectionTitle= useRef<HTMLInputElement>(null)
 
 
 useEffect(()=>{
@@ -35,11 +35,39 @@ useEffect(()=>{
     }
   }
   getSections()
-},[])
+
+  
+  },[])
+
+  async function createSection(){
+    const title= newSectionTitle.current?.value 
+
+    const response= await fetch("http://localhost:3001/section/post-section",{
+      method:"POST", 
+      headers: {
+        "Content-type":"application/json"
+      },
+      body: JSON.stringify({
+        title:title,
+        boardId:1
+      })
+            
+      
+    })
+  }
 
 return (
   <div>
     <h1>Board</h1>
+    <input
+    ref={newSectionTitle} 
+    placeholder="New Section Title"    
+    />
+
+    <button onClick= {createSection}>
+      Create Section
+    </button>
+  
     <div style={{display:"flex", gap:20}}>
       {
         sections.map((section)=>(<div key={section.id}>
@@ -48,6 +76,7 @@ return (
     </div>
   </div>
 )
+
 }
 
 export default App
