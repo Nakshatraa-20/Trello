@@ -13,13 +13,13 @@ router.post("/post-section", async (req, res) => {
     return res.status(404).json({ message: "Board not found" });
   }
 
-  const membership = await prisma.membership.findFirst({
+  /*const membership = await prisma.membership.findFirst({
     where: { userId: (req as any).userId, orgId: board.orgId },
   });
 
   if (!membership) {
     return res.status(403).json({ message: "Not a member of this organisation" });
-  }
+  } */
 
   const section = await prisma.section.create({
     data: { title: req.body.title, boardId },

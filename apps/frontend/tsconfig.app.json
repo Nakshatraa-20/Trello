@@ -7,6 +7,8 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    
+
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -15,7 +17,10 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
