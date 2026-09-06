@@ -1,5 +1,8 @@
 import "./index.css";
 import { useEffect, useState , useRef} from "react";
+import Navbar from "./components/Navbar";
+import Board from "./components/Board"
+import { SignupForm } from "./components/signup-form";
 
  interface Issue {
   id: number;
@@ -101,47 +104,54 @@ useEffect(()=>{
     setIssues((prev) => [...prev, data.issue]);
     setIssueTitle("");
   }
+  async function deleteIssue(issueId: number) {
+    const response = await fetch(
+      `http://localhost:3001/issue/${issueId}`,
+      {
+        method: "DELETE",
+      }
+    );
+  
+    const data = await response.json();
+  
+    if (!response.ok) {
+      console.error(data.message);
+      return;
+    }
+  
+    setIssues((prev) =>
+      prev.filter((issue) => issue.id !== issueId)
+    );
+  }
   
 
 
   return (
-    <div>
-      <h1>Board</h1>
+    <div className="min-h-screen  bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white" >
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+  <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/10 blur-3xl" />
+  <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+</div>
+      <Navbar />
+      <Board newSectionTitle={newSectionTitle}
+              createSection= {createSection}  
+              sections = {sections}
+              issues={issues}
+              createIssue={createIssue}
+              issueTitle={issueTitle}
+              setIssueTitle={setIssueTitle}
+               deleteIssue={deleteIssue}                    />                               
   
-      <input
-        ref={newSectionTitle}
-        placeholder="New Section Title"
-      />
+     
   
-      <button onClick={createSection}>
-        Create Section
-      </button>
-  
-      <div style={{ display: "flex", gap: 20 }}>
-        {sections.map((section) => (
-          <div key={section.id}>
-            <h2>{section.title}</h2>
-  
-            {issues
-              .filter((issue) => issue.sectionId === section.id)
-              .map((issue) => (
-                <div key={issue.id}>
-                  {issue.title}
-                </div>
-              ))}
+      </div>) 
 
-              {<input 
-               value= {issueTitle}  
-               onChange={(e)=>setIssueTitle(e.target.value)}
-               placeholder= "new Issue" />}
-
-               <button onClick={() => createIssue(section.id)}> Create issue </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}     
+}
+              
+        
+      
+    
+     
 
 
 

@@ -104,4 +104,39 @@ router.get("/issue/:issueId", async (req, res) => {
   return res.json({ issue });
 });
 
+router.delete("/issue/:issueId", async (req, res) => {
+  const issueId = Number(req.params.issueId);
+
+  const issue = await prisma.issue.findUnique({
+    where: { id: issueId },
+    include: { board: true },
+  });
+
+  if (!issue) {
+    return res.status(404).json({
+      message: "Issue not found",
+    });
+  }
+
+  /*const membership = await prisma.membership.findFirst({
+    where: {
+      userId: (req as any).userId,
+      orgId: issue.board.orgId,
+    },
+  });
+
+  if (!membership) {
+    return res.status(403).json({
+      message: "Not a member of this organisation",
+    });
+  } */
+
+  await prisma.issue.delete({
+    where: { id: issueId },
+  });
+
+  return res.status(200).json({
+    message: "Issue deleted successfully",
+  });
+});
 export default router;
