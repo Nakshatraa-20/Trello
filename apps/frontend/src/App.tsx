@@ -22,7 +22,7 @@ const [sections, setSections]= useState<Section[]>([])
 const newSectionTitle= useRef<HTMLInputElement>(null)
 
 const [issues, setIssues]= useState<Issue[]>([])
-const [issueTitle, setIssueTitle]= useState("")
+const [issueTitle, setIssueTitle]= useState<Record<number, string>>({})
 
 useEffect(()=>{
 
