@@ -137,15 +137,9 @@ useEffect(()=>{
               createSection= {createSection}  
               sections = {sections}
               issues={issues}
-              createIssue={createIssue}
-              issueTitle={issueTitle}
-              setIssueTitle={setIssueTitle}
-               deleteIssue={deleteIssue}                    />                               
-  
-     
-  
+              createIssue={createIssue} 
+              deleteIssue= {deleteIssue} />             
       </div>) 
-
 }
               
         
