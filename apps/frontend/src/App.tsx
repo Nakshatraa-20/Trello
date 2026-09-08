@@ -77,7 +77,7 @@ useEffect(()=>{
     newSectionTitle.current!.value=""
   }
 
-  async function createIssue(sectionId: number) {
+  async function createIssue(sectionId: number, title: string) {
     const response = await fetch(
       "http://localhost:3001/issue/create-issue",
       {
@@ -86,7 +86,7 @@ useEffect(()=>{
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: issueTitle,
+          title: title,
           description: "",
           boardId: 1,
           sectionId: sectionId,

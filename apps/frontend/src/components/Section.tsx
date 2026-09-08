@@ -44,6 +44,11 @@ function Section({section,issues,createIssue, deleteIssue}:SectionProps){
               <div key={issue.id} className=" group relative mb-3 rounded-xl border border-white/10 rounded-2xl bg-slate-800/80 p-4 transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-slate-800 ">{issue.title}
               
               <span className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-violet-500 to-cyan-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+              <button onClick={()=> deleteIssue(issue.id)}
+              className="rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs font-medium text-red-400 transition hover:border-red-500/40 hover:bg-red-500/20 hover:text-red-300"
+                 > Delete
+
+              </button>
               </div>
             ))}  
             <input

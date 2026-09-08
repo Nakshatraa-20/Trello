@@ -104,7 +104,7 @@ router.get("/issue/:issueId", async (req, res) => {
   return res.json({ issue });
 });
 
-router.delete("/issue/:issueId", async (req, res) => {
+router.delete("/:issueId", async (req, res) => {
   const issueId = Number(req.params.issueId);
 
   const issue = await prisma.issue.findUnique({
