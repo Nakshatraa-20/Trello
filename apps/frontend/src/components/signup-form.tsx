@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import {useRef} from "react"
 import {
   Card,
   CardContent,
@@ -15,6 +16,31 @@ import {
 import { Input } from "@/components/ui/input"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const usernameRef= useRef<HTMLInputElement>(null)
+  const passwordRef= useRef<HTMLInputElement>(null)
+
+  async function handleSubmit(e:React.FormEvent){
+    e.preventDefault()
+    const username= usernameRef.current?.value
+    const password= passwordRef.current?.value
+    const response= await fetch("http://localhost:3001/user/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        password
+      })
+
+    })
+    const data= await response.json()
+    if(!response.ok){
+      console.log(data.message)
+      return 
+    }
+    console.log(data.message)
+  }
   return (
     <Card {...props}>
       <CardHeader>
@@ -24,39 +50,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
+              <FieldLabel htmlFor="username">Username</FieldLabel>
+              <Input ref={usernameRef}id="username" type="text" placeholder="Enter your username" required />
             </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
-            </Field>
+            
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" required />
+              <Input ref={passwordRef} id="password" type="password" required />
               <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription>
             </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" required />
-              <FieldDescription>Please confirm your password.</FieldDescription>
-            </Field>
+           
             <FieldGroup>
               <Field>
                 <Button type="submit">Create Account</Button>

@@ -22,7 +22,7 @@ interface BoardProps {
   newSectionTitle: RefObject<HTMLInputElement | null>;
   createSection: () => void;
 
-  createIssue: (sectionId: number) => void;
+  createIssue: (sectionId: number, title:string) => void;
   
   deleteIssue: (issueId: number) => void;
 }
