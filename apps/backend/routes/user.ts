@@ -6,6 +6,7 @@ import { signinSchema, signupSchema } from "../validators/auth";
 
 const router = express.Router();
 
+
 router.post("/signup", async (req, res) => {
   const result = signupSchema.safeParse(req.body);
 

@@ -50,17 +50,28 @@ export function LoginForm({
     
   
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
+    <div
+      className={cn(
+        "grid min-h-screen place-items-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6",
+        className,
+      )}
+      {...props}
+    >
+      <Card className="min-h-[460px] w-full max-w-[430px] border border-white/10 bg-slate-900/80 py-0 text-white shadow-2xl shadow-indigo-950/40 backdrop-blur-xl">
+        <CardHeader className="gap-3 border-b border-white/10 px-8 py-8">
+          <p className="text-xs font-semibold tracking-[0.2em] text-indigo-300 uppercase">
+            Welcome back
+          </p>
+          <CardTitle className="text-3xl font-semibold tracking-tight text-white">
+            Sign in to your board
+          </CardTitle>
+          <CardDescription className="text-slate-400">
             Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={boardLogin}>
-            <FieldGroup>
+        <CardContent className="px-8 py-7">
+          <form className="flex h-full flex-col" onSubmit={boardLogin}>
+            <FieldGroup className="gap-5">
             <Field>
       <FieldLabel htmlFor="username">Username</FieldLabel>
      <Input
@@ -68,6 +79,7 @@ export function LoginForm({
     id="username"
     type="text"
     placeholder="Enter your username"
+    className="h-10 border-white/15 bg-white/5 text-white placeholder:text-slate-500 focus-visible:border-indigo-400 focus-visible:ring-indigo-400/30"
     required
   />
    </Field>
@@ -81,15 +93,17 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input ref= {passwordRef}id="password" type="password" required />
+                <Input className="h-10 border-white/15 bg-white/5 text-white placeholder:text-slate-500 focus-visible:border-indigo-400 focus-visible:ring-indigo-400/30" ref={passwordRef} id="password" type="password" required />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
+                <Button className="h-10 w-full bg-indigo-500 text-white hover:bg-indigo-400" type="submit">
+                  Sign in
+                </Button>
+                <Button className="h-10 w-full border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white" variant="outline" type="button">
                   Login with Google
                 </Button>
-                <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                <FieldDescription className="pt-2 text-center text-slate-400">
+                  Don&apos;t have an account? <a className="font-medium text-indigo-300 hover:text-indigo-200" href="#">Sign up</a>
                 </FieldDescription>
               </Field>
             </FieldGroup>

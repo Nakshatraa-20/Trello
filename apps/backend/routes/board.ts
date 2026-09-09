@@ -3,7 +3,7 @@ import prisma from "db/client";
 import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
-
+router.use(authMiddleware)
 
 router.post("/board-post", async (req, res) => {
   const orgId = Number(req.body.orgId);
