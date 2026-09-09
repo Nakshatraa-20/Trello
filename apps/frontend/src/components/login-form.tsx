@@ -1,4 +1,5 @@
 import { cn } from "cn"
+import {useRef} from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,27 +21,56 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const usernameRef= useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+
+  async function boardLogin(e:React.FormEvent){
+    e.preventDefault()
+    const username= usernameRef.current?.value;
+    const password= passwordRef.current?.value;
+
+   const response= await fetch("http://localhost:3001/user/signin",{
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      
+    },
+    body: JSON.stringify({
+      username,
+      password
+    })
+        
+   })
+
+   const data= await response.json()
+   localStorage.setItem("token",data.token)
+    }
+
+    
+  
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={boardLogin}>
             <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </Field>
+            <Field>
+      <FieldLabel htmlFor="username">Username</FieldLabel>
+     <Input
+     ref={usernameRef}
+    id="username"
+    type="text"
+    placeholder="Enter your username"
+    required
+  />
+   </Field>
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -51,7 +81,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input ref= {passwordRef}id="password" type="password" required />
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -68,4 +98,5 @@ export function LoginForm({
       </Card>
     </div>
   )
+
 }

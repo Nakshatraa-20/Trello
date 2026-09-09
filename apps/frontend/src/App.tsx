@@ -3,6 +3,7 @@ import { useEffect, useState , useRef} from "react";
 import Navbar from "./components/Navbar";
 import Board from "./components/Board"
 import { SignupForm } from "./components/signup-form";
+import {LoginForm} from "./components/login-form"
 
  interface Issue {
   id: number;
@@ -79,12 +80,14 @@ useEffect(()=>{
   }
 
   async function createIssue(sectionId: number, title: string) {
+    const token= localStorage.getItem("token")
     const response = await fetch(
       "http://localhost:3001/issue/create-issue",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title: title,
@@ -129,7 +132,7 @@ useEffect(()=>{
 
   return (
 
-    <SignupForm />
+    <LoginForm />
     /*<div className="min-h-screen  bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white" >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
   <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/10 blur-3xl" />
