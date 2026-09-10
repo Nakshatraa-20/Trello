@@ -21,6 +21,7 @@ model User{
   membership    Membership[]
   issueMapping  IssueMapping[]
   comment       Comment[]
+  boards        Boards[]
 }
 
 
@@ -36,9 +37,11 @@ model  Org{
 
 model Boards{
   id       Int       @id     @default(autoincrement())
-  title    String    
-  orgId    Int
-  org      Org      @relation(fields:[orgId], references:[id])
+  title    String   
+  userId    Int?
+  user      User?    @relation(fields:[userId], references:[id]) 
+  orgId    Int?
+  org      Org?      @relation(fields:[orgId], references:[id])
   section  Section[]
   issue    Issue[]
 }

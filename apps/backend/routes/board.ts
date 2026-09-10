@@ -29,6 +29,17 @@ router.post("/board-post", async (req, res) => {
   return res.status(201).json({ board });
 });
 
+router.post("/personal-board", async(req,res)=>
+{
+  const board= await prisma.boards.create({
+    data: {
+      title: req.body.title,
+      userId: (req as any).userId
+    }
+  })
+  return res.status(201).json({board})
+})
+
 router.get("/boards", async (req, res) => {
   const orgId = Number(req.query.orgId);
   const membership = await prisma.membership.findFirst
@@ -73,14 +84,30 @@ router.delete("/board-delete", async (req, res) => {
     return res.status(404).json({ message: "Board not found" });
   }
 
-  const membership = await prisma.membership.findFirst({
-    where: { orgId: board.orgId, userId: (req as any).userId, role: "admin" },
-  });
-
-  if (!membership) {
-    return res.status(403).json({ message: "Admin access required" });
+  if(board.orgId===null){
+    if(board.userId !== (req as any).userId)
+    {
+      return res.status(403).json({
+        message: "you cannot delete this board"
+      })
+    }
   }
 
+  else{
+    const membership = await prisma.membership.findFirst({
+      where:{
+        orgId: board.orgId,
+        userId: (req as any).userId,
+        role:"admin"
+      }
+    })
+    if(!membership){
+      return res.status(403).json({
+        message:"admin access required"
+      })
+    }
+  }
+  
   await prisma.boards.delete({ where: { id: boardId } });
   return res.status(204).send();
 });

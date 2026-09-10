@@ -16,14 +16,23 @@ router.post("/comment", async (req, res) => {
     return res.status(404).json({ message: "Issue not found" });
   }
 
-  const membership = await prisma.membership.findFirst({
-    where: { userId: (req as any).userId, orgId: issue.board.orgId },
-  });
-
-  if (!membership) {
-    return res.status(403).json({ message: "Not a member of this organisation" });
+  if (board.orgId === null) {
+    if (board.userId !== (req as any).userId) {
+      return res.status(403).json({ message: "You cannot delete this board" });
+    }
+  } else {
+    const membership = await prisma.membership.findFirst({
+      where: {
+        orgId: board.orgId,
+        userId: (req as any).userId,
+        role: "admin",
+      },
+    });
+  
+    if (!membership) {
+      return res.status(403).json({ message: "Admin access required" });
+    }
   }
-
   const comment = await prisma.comment.create({
     data: {
       content: req.body.comment,
