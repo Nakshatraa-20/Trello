@@ -81,7 +81,7 @@ const boards= await prisma.boards.findMany({
 return res.json({boards}) 
      })
 
-router.get("/workspace", async(req, res)=>
+/*router.get("/workspace", async(req, res)=>
 {
   const userId= (req as any).userId
 
@@ -99,11 +99,11 @@ router.get("/workspace", async(req, res)=>
       orgId:{
         in: orgIds
       },
-      
+
     }
   })
   return res.json({boards})
-})
+}) */
 
 
 
