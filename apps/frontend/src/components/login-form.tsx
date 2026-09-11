@@ -2,6 +2,7 @@ import { cn } from "cn"
 import {useRef} from "react"
 import {Link, useNavigate} from "react-router-dom"
 
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -25,6 +26,7 @@ export function LoginForm({
 
   const usernameRef= useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
+  const navigate= useNavigate()
 
 
   async function boardLogin(e:React.FormEvent){
