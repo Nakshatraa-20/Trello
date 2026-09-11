@@ -2,6 +2,7 @@ import "./index.css";
 import { useEffect, useState , useRef} from "react";
 import Navbar from "./components/Navbar";
 import Board from "./components/Board"
+/*import Dashboard from "./components/Dashboard" */
 import { SignupForm } from "./components/signup-form";
 import {LoginForm} from "./components/login-form"
 import BoardPage from "./components/BoardPage"
@@ -16,6 +17,7 @@ function App(){
       <Route path= "/signup"  element= {<SignupForm />} />
       <Route path= "/login"   element={<LoginForm />}  />
       <Route path= "/board"   element={<BoardPage />} />
+      
 
     </Routes>
       </BrowserRouter>

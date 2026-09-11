@@ -41,24 +41,72 @@ router.post("/personal-board", async(req,res)=>
 })
 
 router.get("/boards", async (req, res) => {
-  const orgId = Number(req.query.orgId);
-  const membership = await prisma.membership.findFirst
-  ({
-    where: 
-    { orgId, 
-      userId: (req as any).userId },
+  const userId= (req as any).userId
+  const memberships= await prisma.membership.findMany({
+         where:{
+          userId
+         },
+         select:{
+          orgId:true
+         }
+  })
+
+  const orgIds= memberships.map((membership)=>membership.orgId)
+  const boards = await prisma.boards.findMany({
+    where: {
+      OR: [
+        {
+          userId
+        },
+        {
+          orgId: {
+            in: orgIds
+          }
+        }
+      ]
+    }
   });
+         return res.json({boards})
+})
 
-  if (!membership) {
-    return res.status(403).json
-    ({ message: "Not a member of the organisation" });
-  }
+router.get("/personal", async(req,res)=>
+{
+const userId= (req as any).userId
+const boards= await prisma.boards.findMany({
+    where:{
+      userId,
+      orgId: null
+    }
+})  
+return res.json({boards}) 
+     })
 
-  const boards = await prisma.boards.findMany
-  ({ where: 
-   { orgId } });
-  return res.json({ boards });
-});
+router.get("/workspace", async(req, res)=>
+{
+  const userId= (req as any).userId
+
+  const memberships = await prisma.membership.findMany({
+    where:{
+      userId
+    },
+    select:{
+      orgId: true
+    }
+  })
+  const orgIds= memberships.map((membership)=>membership.orgId)
+  const boards= await prisma.boards.findMany({
+    where:{
+      orgId:{
+        in: orgIds
+      },
+      
+    }
+  })
+  return res.json({boards})
+})
+
+
+
 
 router.delete("/boards-delete", async (req, res) => {
   const orgId = Number(req.body.orgId);
