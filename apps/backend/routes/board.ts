@@ -5,7 +5,7 @@ import { authMiddleware } from "../middleware/auth";
 const router = express.Router();
 router.use(authMiddleware)
 
-router.post("/board-post", async (req, res) => {
+router.post("/org-board-post", async (req, res) => {
   const orgId = Number(req.body.orgId);
   const membership = await prisma.membership.findFirst
   ({
@@ -81,7 +81,7 @@ const boards= await prisma.boards.findMany({
 return res.json({boards}) 
      })
 
-/*router.get("/workspace", async(req, res)=>
+router.get("/workspace", async(req, res)=>
 {
   const userId= (req as any).userId
 
@@ -103,7 +103,8 @@ return res.json({boards})
     }
   })
   return res.json({boards})
-}) */
+}) 
+
 
 
 

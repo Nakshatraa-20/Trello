@@ -125,7 +125,7 @@ router.get("/:boardId", async (req, res) => {
       return res.status(404).json({ message: "Section not found" });
     }
   
-    if (board.orgId === null) {
+   /* if (board.orgId === null) {
       if (board.userId !== (req as any).userId) {
         return res.status(403).json({
           message: "You do not have access to this board",
@@ -145,7 +145,7 @@ router.get("/:boardId", async (req, res) => {
         });
       }
     }
-  
+       */
     const issues = await prisma.issue.findMany({ where: { sectionId } });
     return res.json({ issues });
   });
@@ -155,3 +155,4 @@ router.get("/:boardId", async (req, res) => {
 });
 
 export default router;
+

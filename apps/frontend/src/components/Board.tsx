@@ -1,7 +1,5 @@
-import type {RefObject} from "react"
-import Section from "./Section"
-
-
+import type { RefObject } from "react";
+import Section from "./Section";
 
 interface SectionData {
   id: number;
@@ -22,8 +20,8 @@ interface BoardProps {
   newSectionTitle: RefObject<HTMLInputElement | null>;
   createSection: () => void;
 
-  createIssue: (sectionId: number, title:string) => void;
-  
+  createIssue: (sectionId: number, title: string) => void;
+
   deleteIssue: (issueId: number) => void;
 }
 
@@ -33,14 +31,11 @@ function Board({
   sections,
   issues,
   createIssue,
-  
-  deleteIssue
 
+  deleteIssue,
 }: BoardProps) {
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-10">
-
-      
       <div className="mb-8">
         <h2 className="text-3xl font-bold tracking-tight text-white">
           My Board
@@ -51,7 +46,6 @@ function Board({
         </p>
       </div>
 
-      
       <div className="mb-8 flex items-center gap-3">
         <input
           ref={newSectionTitle}
@@ -67,7 +61,6 @@ function Board({
         </button>
       </div>
 
-    
       <div className="flex gap-5 overflow-x-auto pb-4">
         {sections.map((section) => (
           <Section
@@ -75,12 +68,11 @@ function Board({
             section={section}
             issues={issues}
             createIssue={createIssue}
-            
+
             deleteIssue={deleteIssue}
           />
         ))}
       </div>
-
     </main>
   );
 }

@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button"
 import {useRef} from "react"
+import {useNavigate} from "react-router-dom"
+import {Link} from "react-router-dom" 
 import {
   Card,
   CardContent,
@@ -18,6 +20,7 @@ import { Input } from "@/components/ui/input"
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const usernameRef= useRef<HTMLInputElement>(null)
   const passwordRef= useRef<HTMLInputElement>(null)
+  const navigate= useNavigate()
 
   async function handleSubmit(e:React.FormEvent){
     e.preventDefault()
@@ -39,7 +42,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       console.log(data.message)
       return 
     }
-    console.log(data.message)
+    navigate("/login")
   }
   return (
     <div className="grid min-h-screen w-full place-items-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 text-white">
@@ -77,6 +80,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </Button>
                 <FieldDescription className="px-6 pt-2 text-center text-slate-400">
                   Already have an account? <a className="font-medium text-indigo-300 hover:text-indigo-200" href="#">Sign in</a>
+                  
                 </FieldDescription>
               </Field>
             </FieldGroup>

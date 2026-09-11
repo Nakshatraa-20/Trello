@@ -1,11 +1,13 @@
 import "./index.css";
+import {Link} from "react-router-dom"
 import { useEffect, useState , useRef} from "react";
 import Navbar from "./components/Navbar";
 import Board from "./components/Board"
-/*import Dashboard from "./components/Dashboard" */
+import Dashboard from "./components/Dashboard" 
 import { SignupForm } from "./components/signup-form";
 import {LoginForm} from "./components/login-form"
 import BoardPage from "./components/BoardPage"
+
 
 import {BrowserRouter, Routes, Route} from "react-router-dom"
 
@@ -16,8 +18,8 @@ function App(){
     <Routes>
       <Route path= "/signup"  element= {<SignupForm />} />
       <Route path= "/login"   element={<LoginForm />}  />
-      <Route path= "/board"   element={<BoardPage />} />
-      
+      <Route path= "/board/:boardId"   element={<BoardPage />} />
+      <Route path= "/dashboard"  element={<Dashboard />} />
 
     </Routes>
       </BrowserRouter>
@@ -37,10 +39,9 @@ function App(){
       </div>) */
 )}
               
-        
       
-    
-     
+
+
 
 
 
