@@ -33,6 +33,7 @@ export function LoginForm({
     e.preventDefault()
     const username= usernameRef.current?.value;
     const password= passwordRef.current?.value;
+    
 
    const response= await fetch("http://localhost:3001/user/signin",{
     method: "POST",
@@ -49,6 +50,7 @@ export function LoginForm({
 
    const data= await response.json()
    localStorage.setItem("token",data.token)
+   navigate("/dashboard")
     }
 
     
