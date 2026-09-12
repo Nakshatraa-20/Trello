@@ -28,7 +28,7 @@ function BoardPage() {
     async function getSections() {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3001/section/${boardId}", {
+        const response = await fetch(`http://localhost:3001/section/${boardId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -46,7 +46,7 @@ function BoardPage() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:3001/issue/issues/board/${boardId}",
+        `http://localhost:3001/issue/issues/board/${boardId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,13 +57,13 @@ function BoardPage() {
       setIssues(data.issues);
     }
     getIssues();
-  }, []);
+  }, [boardId]);
 
   async function createSection() {
     const title = newSectionTitle.current?.value;
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:3001/section/post-section", {
+    const response = await fetch(`http://localhost:3001/section/post-section`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -71,7 +71,7 @@ function BoardPage() {
       },
       body: JSON.stringify({
         title: title,
-        boardId: 1,
+        boardId: Number(boardId),
       }),
     });
 
@@ -87,7 +87,7 @@ function BoardPage() {
 
   async function createIssue(sectionId: number, title: string) {
     const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:3001/issue/create-issue", {
+    const response = await fetch(`http://localhost:3001/issue/create-issue`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +96,7 @@ function BoardPage() {
       body: JSON.stringify({
         title: title,
         description: "",
-        boardId: 1,
+        boardId: Number(boardId),
         sectionId: sectionId,
       }),
     });
