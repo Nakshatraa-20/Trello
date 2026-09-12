@@ -9,8 +9,7 @@ router.post("/create-issue", async (req, res) => {
   const boardId = Number(req.body.boardId);
   const sectionId = Number(req.body.sectionId);
   const board = await prisma.boards.findUnique({ where: { id: boardId } })
-  console.log("BOARD:", board);
-  console.log("CURRENT USER:", (req as any).userId);
+  
   const section = await prisma.section.findUnique({ where: { id: sectionId } });
 
   if (!board) {
@@ -56,12 +55,14 @@ router.post("/create-issue", async (req, res) => {
 router.get("/issues/board/:boardId", async (req, res) => {
   const boardId = Number(req.params.boardId);
   const board = await prisma.boards.findUnique({ where: { id: boardId } });
+  console.log("PARAM:", req.params.boardId);
+  console.log("BOARD ID:", boardId);
 
   if (!board) {
     return res.status(404).json({ message: "Board not found" });
   }
 
-  /*if (board.orgId === null) {
+  if (board.orgId === null) {
     if (board.userId !== (req as any).userId) {
       return res.status(403).json({
         message: "You do not have access to this board",
@@ -80,7 +81,7 @@ router.get("/issues/board/:boardId", async (req, res) => {
         message: "Not a member of this organisation",
       });
     }
-  } */
+  } 
 
   const issues = await prisma.issue.findMany({ where: { boardId } });
   return res.json({ issues });

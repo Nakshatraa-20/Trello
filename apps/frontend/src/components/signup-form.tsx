@@ -79,7 +79,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 pt-2 text-center text-slate-400">
-                  Already have an account? <a className="font-medium text-indigo-300 hover:text-indigo-200" href="#">Sign in</a>
+                  Already have an account? <Link to ="/login" className="font-medium text-indigo-300 hover:text-indigo-200" >Sign in</Link>
                   
                 </FieldDescription>
               </Field>
