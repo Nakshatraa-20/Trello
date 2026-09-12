@@ -109,7 +109,10 @@ function BoardPage() {
     }
 
     setIssues((prev) => [...prev, data.issue]);
-    setIssueTitle("");
+    setIssueTitle((prev) => ({
+        ...prev,
+        [sectionId]: "",
+      }));
   }
   async function deleteIssue(issueId: number) {
     const token = localStorage.getItem("token");

@@ -52,8 +52,9 @@ function Section({section,issues,createIssue, deleteIssue}:SectionProps){
               </div>
             ))}  
             <input
-          ref={issueTitle}
+          
           type="text"
+          ref={issueTitle}
           placeholder="Create an issue..."
          className="mb-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-500 transition focus:border-violet-500/50 focus:bg-white/10"
           />
