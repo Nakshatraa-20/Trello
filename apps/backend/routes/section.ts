@@ -12,48 +12,37 @@ router.post("/post-section", async (req, res) => {
   if (!board) {
     return res.status(404).json({ message: "Board not found" });
   }
-
-  router.get("/issues/section/:sectionId", async (req, res) => {
-    const sectionId = Number(req.params.sectionId);
-    const section = await prisma.section.findUnique({
-      where: { id: sectionId },
-      include: { board: true },
+  if (board.orgId === null) {
+    if (board.userId !== (req as any).userId) {
+      return res.status(403).json({
+        message: "You do not have access to this board",
+      });
+    }
+  } else {
+    const membership = await prisma.membership.findFirst({
+      where: {
+        userId: (req as any).userId,
+        orgId: board.orgId,
+      },
     });
   
-    if (!section) {
-      return res.status(404).json({ message: "Section not found" });
-    }
-  
-    if (board.orgId === null) {
-      if (board.userId !== (req as any).userId) {
-        return res.status(403).json({
-          message: "You do not have access to this board",
-        });
-      }
-    } else {
-      const membership = await prisma.membership.findFirst({
-        where: {
-          userId: (req as any).userId,
-          orgId: board.orgId,
-        },
+    if (!membership) {
+      return res.status(403).json({
+        message: "Not a member of this organisation",
       });
-    
-      if (!membership) {
-        return res.status(403).json({
-          message: "Not a member of this organisation",
-        });
-      }
     }
-  
-    const issues = await prisma.issue.findMany({ where: { sectionId } });
-    return res.json({ issues });
-  });
+  }
+
   const section = await prisma.section.create({
-    data: { title: req.body.title, boardId },
+    data: {
+      title: req.body.title,
+      boardId,
+    },
   });
 
   return res.status(201).json({ section });
-});
+
+})
 
 router.delete("/delete-section", async (req, res) => {
   const sectionId = Number(req.body.sectionId);
@@ -65,46 +54,36 @@ router.delete("/delete-section", async (req, res) => {
   if (!section) {
     return res.status(404).json({ message: "Section not found" });
   }
-
-  router.get("/issues/section/:sectionId", async (req, res) => {
-    const sectionId = Number(req.params.sectionId);
-    const section = await prisma.section.findUnique({
-      where: { id: sectionId },
-      include: { board: true },
+  if (section.board.orgId === null) {
+    if (section.board.userId !== (req as any).userId) {
+      return res.status(403).json({
+        message: "You do not have access to this board",
+      });
+    }
+  } else {
+    const membership = await prisma.membership.findFirst({
+      where: {
+        userId: (req as any).userId,
+        orgId: section.board.orgId,
+      },
     });
   
-    if (!section) {
-      return res.status(404).json({ message: "Section not found" });
-    }
-  
-    if (section.board.orgId === null) {
-      if (section.board.userId !== (req as any).userId) {
-        return res.status(403).json({
-          message: "You do not have access to this board",
-        });
-      }
-    } else {
-      const membership = await prisma.membership.findFirst({
-        where: {
-          userId: (req as any).userId,
-          orgId: section.board.orgId,
-        },
+    if (!membership) {
+      return res.status(403).json({
+        message: "Not a member of this organisation",
       });
-    
-      if (!membership) {
-        return res.status(403).json({
-          message: "Not a member of this organisation",
-        });
-      }
     }
-  
-    const issues = await prisma.issue.findMany({ where: { sectionId } });
-    return res.json({ issues });
+    await prisma.section.delete({
+      where: {
+        id: sectionId,
+      },
+    });
+  }
+  return res.status(200).json({
+    message: "Section deleted successfully",
   });
 
-  await prisma.section.delete({ where: { id: sectionId } });
-  return res.status(204).send();
-});
+})
 
 router.get("/:boardId", async (req, res) => {
   const boardId = Number(req.params.boardId);
@@ -113,46 +92,36 @@ router.get("/:boardId", async (req, res) => {
   if (!board) {
     return res.status(404).json({ message: "Board not found" });
   }
-
-  router.get("/issues/section/:sectionId", async (req, res) => {
-    const sectionId = Number(req.params.sectionId);
-    const section = await prisma.section.findUnique({
-      where: { id: sectionId },
-      include: { board: true },
+  if (board.orgId === null) {
+    if (board.userId !== (req as any).userId) {
+      return res.status(403).json({
+        message: "You do not have access to this board",
+      });
+    }
+  } else {
+    const membership = await prisma.membership.findFirst({
+      where: {
+        userId: (req as any).userId,
+        orgId: board.orgId,
+      },
     });
   
-    if (!section) {
-      return res.status(404).json({ message: "Section not found" });
-    }
-  
-   /* if (board.orgId === null) {
-      if (board.userId !== (req as any).userId) {
-        return res.status(403).json({
-          message: "You do not have access to this board",
-        });
-      }
-    } else {
-      const membership = await prisma.membership.findFirst({
-        where: {
-          userId: (req as any).userId,
-          orgId: board.orgId,
-        },
+    if (!membership) {
+      return res.status(403).json({
+        message: "Not a member of this organisation",
       });
-    
-      if (!membership) {
-        return res.status(403).json({
-          message: "Not a member of this organisation",
-        });
-      }
     }
-       */
-    const issues = await prisma.issue.findMany({ where: { sectionId } });
-    return res.json({ issues });
+  }
+
+  const sections = await prisma.section.findMany({
+    where: {
+      boardId
+    }
   });
 
-  const sections = await prisma.section.findMany({ where: { boardId } });
-  return res.json({ sections });
-});
+  return res.json({sections})
+
+})
 
 export default router;
 

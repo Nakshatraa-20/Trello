@@ -8,7 +8,9 @@ router.use(authMiddleware);
 router.post("/create-issue", async (req, res) => {
   const boardId = Number(req.body.boardId);
   const sectionId = Number(req.body.sectionId);
-  const board = await prisma.boards.findUnique({ where: { id: boardId } });
+  const board = await prisma.boards.findUnique({ where: { id: boardId } })
+  console.log("BOARD:", board);
+  console.log("CURRENT USER:", (req as any).userId);
   const section = await prisma.section.findUnique({ where: { id: sectionId } });
 
   if (!board) {
@@ -20,7 +22,7 @@ router.post("/create-issue", async (req, res) => {
   }
 
   if (board.orgId === null) {
-    if (board.userId !== (req as any).userId) {
+     if (board.userId !== (req as any).userId) {
       return res.status(403).json({
         message: "You do not have access to this board",
       });
@@ -38,7 +40,7 @@ router.post("/create-issue", async (req, res) => {
         message: "Not a member of this organisation",
       });
     }
-  }
+  } 
   const issue = await prisma.issue.create({
     data: {
       title: req.body.title,

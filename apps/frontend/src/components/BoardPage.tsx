@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import Board from "./Board";
 import Navbar from "./Navbar";
+import {useParams} from "react-router-dom"
 
 interface Issue {
   id: number;
@@ -18,6 +19,7 @@ interface Section {
 function BoardPage() {
   const [sections, setSections] = useState<Section[]>([]);
   const newSectionTitle = useRef<HTMLInputElement>(null);
+  const {boardId} = useParams()
 
   const [issues, setIssues] = useState<Issue[]>([]);
   const [issueTitle, setIssueTitle] = useState<Record<number, string>>({});
@@ -26,7 +28,7 @@ function BoardPage() {
     async function getSections() {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3001/section/1", {
+        const response = await fetch("http://localhost:3001/section/${boardId}", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -44,7 +46,7 @@ function BoardPage() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        "http://localhost:3001/issue/issues/board/1",
+        "http://localhost:3001/issue/issues/board/${boardId}",
         {
           headers: {
             Authorization: `Bearer ${token}`,
