@@ -28,7 +28,9 @@ function Dashboard() {
   useEffect(() => {
     getPersonalBoards();
     getWorkspaceBoards();
+    getWorkspaceOrganisations()
   }, []);
+
   async function getPersonalBoards() {
     const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:3001/board/personal", {
