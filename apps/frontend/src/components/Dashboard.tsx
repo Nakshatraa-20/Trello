@@ -122,8 +122,6 @@ function Dashboard() {
       },
     );
 
-  
-
     const data = await response.json();
 
     if (!response.ok) {
@@ -135,8 +133,32 @@ function Dashboard() {
     await getWorkspaceOrganisations();
   }
 
-  async function createWorkspaceBoards(){
-     const response= await fetch("http://localhost:3001/")
+  async function createWorkspaceBoards(orgId: number) {
+    const title = prompt("Enter board name");
+    if (!title) {
+      return;
+    }
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:3001/board/org-board-post", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        title,
+        orgId,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.log(data.message);
+      return;
+    }
+
+    setWorkspaceBoards((prev) => [...prev, data.board]);
   }
 
   return (
@@ -149,12 +171,18 @@ function Dashboard() {
           <div className="mt-4 flex flex-wrap gap-4 ">
             {personalBoards.map((board) => (
               <Link
-                key={board.id}
-                to={`/board/${board.id}`}
-                className="block w-64 rounded-xl border border-white/10 bg-slate-900/70 p-5 shadow-lg transition hover:border-violet-500/40"
-              >
-                <h3 className="text-lg font-semibold">{board.title}</h3>
-              </Link>
+              key={board.id}
+              to={`/board/${board.id}`}
+              className="group block h-40 w-72 rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-violet-500/40 hover:bg-slate-900 hover:shadow-xl"
+            >
+              <h3 className="text-xl font-semibold">
+                {board.title}
+              </h3>
+            
+              <p className="mt-2 text-sm text-slate-400">
+                Open board →
+              </p>
+            </Link>
             ))}
           </div>
         </div>
@@ -196,19 +224,18 @@ function Dashboard() {
                     .filter((board) => board.orgId === membership.org.id)
                     .map((board) => (
                       <Link
-                        key={board.id}
-                        to={`/board/${board.id}`}
-                        className="block w-48 rounded-lg border border-white/10 bg-white/5 p-4 transition hover:border-violet-500/40 hover:bg-white/10"
-                      >
-
+              key={board.id}
+              to={`/board/${board.id}`}
+              className="group block h-40 w-72 rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-violet-500/40 hover:bg-slate-900 hover:shadow-xl"
+            >
                         <h4 className="font-medium">{board.title}</h4>
                       </Link>
-
                     ))}
                 </div>
-                <button onClick={()=> }>
-
-                </button>
+                <button
+                  onClick={() => createWorkspaceBoards(membership.org.id)}
+                  className="nmt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium transition hover:bg-indigo-500"
+                > Create Board </button>
               </div>
             ))}
           </div>
