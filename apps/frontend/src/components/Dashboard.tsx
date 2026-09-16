@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Board from "./Board";
 
 interface Board {
   id: number;
@@ -28,7 +29,7 @@ function Dashboard() {
   useEffect(() => {
     getPersonalBoards();
     getWorkspaceBoards();
-    getWorkspaceOrganisations()
+    getWorkspaceOrganisations();
   }, []);
 
   async function getPersonalBoards() {
@@ -106,17 +107,22 @@ function Dashboard() {
 
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:3001/organisation/create-org", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      "http://localhost:3001/organisation/create-org",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name,
+          description,
+        }),
       },
-      body: JSON.stringify({
-        name,
-        description,
-      }),
-    });
+    );
+
+  
 
     const data = await response.json();
 
@@ -126,7 +132,11 @@ function Dashboard() {
     }
 
     console.log(data.organisation);
-    await getWorkspaceOrganisations()
+    await getWorkspaceOrganisations();
+  }
+
+  async function createWorkspaceBoards(){
+     const response= await fetch("http://localhost:3001/")
   }
 
   return (
@@ -181,6 +191,24 @@ function Dashboard() {
                 <p className="mt-3 text-xs text-slate-500">
                   Role: {membership.role}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-4">
+                  {workspaceBoards
+                    .filter((board) => board.orgId === membership.org.id)
+                    .map((board) => (
+                      <Link
+                        key={board.id}
+                        to={`/board/${board.id}`}
+                        className="block w-48 rounded-lg border border-white/10 bg-white/5 p-4 transition hover:border-violet-500/40 hover:bg-white/10"
+                      >
+
+                        <h4 className="font-medium">{board.title}</h4>
+                      </Link>
+
+                    ))}
+                </div>
+                <button onClick={()=> }>
+
+                </button>
               </div>
             ))}
           </div>

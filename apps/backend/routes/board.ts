@@ -22,7 +22,8 @@ router.post("/org-board-post", async (req, res) => {
     data: 
     { 
       title: req.body.title, 
-      orgId 
+      orgId,
+      userId= (req as any).userId
    },
   });
 
