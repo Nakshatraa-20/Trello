@@ -232,4 +232,22 @@ router.delete("/:issueId", async (req, res) => {
     message: "Issue deleted successfully",
   });
 });
+
+router.patch("/:issueId/completed", async(req,res)=>{
+const issueId= Number(req.params.issueId)
+const completed= req.body.completed
+
+const issue= await prisma.issue.update({
+  where: {
+    id: issueId
+  },
+  data:{
+    completed:completed
+  }
+})
+
+res.json({issue})
+
+}
+)
 export default router;
