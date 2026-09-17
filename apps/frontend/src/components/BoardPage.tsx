@@ -61,6 +61,10 @@ function BoardPage() {
 
   async function createSection() {
     const title = newSectionTitle.current?.value;
+    if(!title)
+    {
+      return
+    }
     const token = localStorage.getItem("token");
 
     const response = await fetch(`http://localhost:3001/section/post-section`, {
