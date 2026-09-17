@@ -164,16 +164,29 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white">
       <main className="mx-auto max-w-[1600px] px-6 py-10">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold">Personal Boards</h2>
+        <header className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">
+            Workspace
+          </p>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight">Your boards</h1>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
+            Plan projects, organise work, and keep everything moving.
+          </p>
+        </header>
+        <div>
+          <div className="flex items-end justify-between border-b border-white/10 pb-3">
+            <div>
+              <h2 className="text-lg font-semibold">Personal boards</h2>
+              <p className="mt-1 text-sm text-slate-400">Boards created for your own work.</p>
+            </div>
+          </div>
 
           <div className="mt-4 flex flex-wrap gap-4 ">
             {personalBoards.map((board) => (
               <Link
               key={board.id}
               to={`/board/${board.id}`}
-              className="group block h-40 w-72 rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-violet-500/40 hover:bg-slate-900 hover:shadow-xl"
+              className="group block h-40 w-72 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-6 shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800 hover:shadow-xl"
             >
               <h3 className="text-xl font-semibold">
                 {board.title}
@@ -189,16 +202,19 @@ function Dashboard() {
 
         <button
           onClick={createPersonalBoard}
-          className="mt-4 rounded-lg bg-violet-600 px-4 py-2 font-medium transition hover:bg-violet-500"
+          className="mt-4 rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-600/30"
         >
           Create Board
         </button>
         <div className="mt-12">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Workspaces</h2>
+            <div>
+              <h2 className="text-lg font-semibold">Workspaces</h2>
+              <p className="mt-1 text-sm text-slate-400">Shared boards for your team and projects.</p>
+            </div>
             <button
               onClick={createOrganization}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium transition hover:bg-indigo-500"
+              className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500"
             >
               + Create Workspace
             </button>
@@ -208,7 +224,7 @@ function Dashboard() {
             {memberships.map((membership) => (
               <div
                 key={membership.org.id}
-                className="w-64 rounded-xl border border-white/10 bg-slate-900/70 p-5 shadow-lg"
+                className= "block w-64 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-5 shadow-lg shadow-black/30 transition hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800"
               >
                 <h3 className="text-lg font-semibold">{membership.org.name}</h3>
 
@@ -226,7 +242,7 @@ function Dashboard() {
                       <Link
               key={board.id}
               to={`/board/${board.id}`}
-              className="group block h-40 w-72 rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-violet-500/40 hover:bg-slate-900 hover:shadow-xl"
+              className="group block h-40 w-72 rounded-2xl border border-slate-700 bg-slate-950/70 p-6 shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/40 hover:bg-slate-950 hover:shadow-xl"
             >
                         <h4 className="font-medium">{board.title}</h4>
                       </Link>
@@ -234,7 +250,7 @@ function Dashboard() {
                 </div>
                 <button
                   onClick={() => createWorkspaceBoards(membership.org.id)}
-                  className="nmt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium transition hover:bg-indigo-500"
+                  className="mt-4 rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500"
                 > Create Board </button>
               </div>
             ))}

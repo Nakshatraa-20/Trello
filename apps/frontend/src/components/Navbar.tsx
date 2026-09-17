@@ -10,7 +10,7 @@ function Navbar() {
         <h1 className="text-lg font-bold tracking-tight">
             FlowBoard
         </h1>
-        <p className=" text-[16px] font-medium uppercase tracking-[0.2em] text-slate-500 ">
+        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-violet-300">
             Workspace
         </p>
 
@@ -28,7 +28,7 @@ function Navbar() {
 
   <span className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-violet-500 to-cyan-400 opacity-0 transition-opacity duration-200 group-focus-within:opacity-100" />
 </div>
-    <button className="relative rounded-xl bg-gradient-to-r from-violet-600 to-indigo-500  px-4 py-2 text-sm text-white shadow-lg shadow-violet-600/20 hover:shadow-xl tansition duration-200 hover:-translate-y-0.5 hover:shadow-xl ">
+    <button className="relative rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition duration-200 hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-600/30">
   Create
 
   

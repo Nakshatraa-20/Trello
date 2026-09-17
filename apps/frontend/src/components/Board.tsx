@@ -36,12 +36,15 @@ function Board({
 }: BoardProps) {
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-10">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold tracking-tight text-white">
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">
+          Project space
+        </p>
+        <h2 className="mt-2 text-4xl font-semibold tracking-tight text-white">
           My Board
         </h2>
 
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
           Organize your work and keep everything moving.
         </p>
       </div>
@@ -50,12 +53,12 @@ function Board({
         <input
           ref={newSectionTitle}
           placeholder="New Section Title"
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-500 transition focus:border-violet-500/50 focus:bg-white/10"
+          className="rounded-xl border border-violet-400/20 bg-slate-950/45 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-500 transition focus:border-violet-400/60 focus:bg-slate-950/70"
         />
 
         <button
           onClick={createSection}
-          className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+          className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition duration-200 hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-600/30"
         >
           + Create Section
         </button>
