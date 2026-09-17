@@ -63,9 +63,11 @@ model Issue{
   boardId       Int
   board       Boards  @relation(fields:[boardId],references:id)
   sectionId    Int
+  completed    Boolean  @default(false)
   section      Section  @relation(fields:[sectionId],references:id) 
   issuemapping  IssueMapping[]
   comment        Comment[]
+
 }
 
 
