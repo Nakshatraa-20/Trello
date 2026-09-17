@@ -168,7 +168,9 @@ function Dashboard() {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">
             Workspace
           </p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-tight">Your boards</h1>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight">
+            Your boards
+          </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
             Plan projects, organise work, and keep everything moving.
           </p>
@@ -177,25 +179,23 @@ function Dashboard() {
           <div className="flex items-end justify-between border-b border-white/10 pb-3">
             <div>
               <h2 className="text-lg font-semibold">Personal boards</h2>
-              <p className="mt-1 text-sm text-slate-400">Boards created for your own work.</p>
+              <p className="mt-1 text-sm text-slate-400">
+                Boards created for your own work.
+              </p>
             </div>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-4 ">
             {personalBoards.map((board) => (
               <Link
-              key={board.id}
-              to={`/board/${board.id}`}
-              className="group block h-40 w-72 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-6 shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800 hover:shadow-xl"
-            >
-              <h3 className="text-xl font-semibold">
-                {board.title}
-              </h3>
-            
-              <p className="mt-2 text-sm text-slate-400">
-                Open board →
-              </p>
-            </Link>
+                key={board.id}
+                to={`/board/${board.id}`}
+                className="group block h-40 w-72 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-6 shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800 hover:shadow-xl"
+              >
+                <h3 className="text-xl font-semibold">{board.title}</h3>
+
+                <p className="mt-2 text-sm text-slate-400">Open board →</p>
+              </Link>
             ))}
           </div>
         </div>
@@ -210,7 +210,9 @@ function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Workspaces</h2>
-              <p className="mt-1 text-sm text-slate-400">Shared boards for your team and projects.</p>
+              <p className="mt-1 text-sm text-slate-400">
+                Shared boards for your team and projects.
+              </p>
             </div>
             <button
               onClick={createOrganization}
@@ -220,38 +222,45 @@ function Dashboard() {
             </button>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-4">
+          <div className="mt-6 space-y-10">
             {memberships.map((membership) => (
-              <div
-                key={membership.org.id}
-                className= "block w-64 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-5 shadow-lg shadow-black/30 transition hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800"
-              >
-                <h3 className="text-lg font-semibold">{membership.org.name}</h3>
+              <div key={membership.org.id}>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {membership.org.name}
+                    </h3>
 
-                <p className="mt-1 text-sm text-slate-400">
-                  {membership.org.description}
-                </p>
+                    <p className="mt-1 text-sm text-slate-400">
+                      {membership.org.description}
+                    </p>
+                  </div>
 
-                <p className="mt-3 text-xs text-slate-500">
-                  Role: {membership.role}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-4">
+                  <button
+                    onClick={() => createWorkspaceBoards(membership.org.id)}
+                    className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-500"
+                  >
+                    + Create Board
+                  </button>
+                </div>
+
+                <div className="mt-4 flex gap-4 overflow-x-auto pb-4">
                   {workspaceBoards
                     .filter((board) => board.orgId === membership.org.id)
                     .map((board) => (
                       <Link
-              key={board.id}
-              to={`/board/${board.id}`}
-              className="group block h-40 w-72 rounded-2xl border border-slate-700 bg-slate-950/70 p-6 shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/40 hover:bg-slate-950 hover:shadow-xl"
-            >
-                        <h4 className="font-medium">{board.title}</h4>
+                        key={board.id}
+                        to={`/board/${board.id}`}
+                        className="group block h-40 w-72 shrink-0 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-6 shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800 hover:shadow-xl"
+                      >
+                        <h4 className="text-xl font-semibold">{board.title}</h4>
+
+                        <p className="mt-2 text-sm text-slate-400">
+                          Open board →
+                        </p>
                       </Link>
                     ))}
                 </div>
-                <button
-                  onClick={() => createWorkspaceBoards(membership.org.id)}
-                  className="mt-4 rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500"
-                > Create Board </button>
               </div>
             ))}
           </div>
