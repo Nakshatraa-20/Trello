@@ -12,6 +12,7 @@ interface Issue {
   title: string;
   boardId: number;
   sectionId: number;
+  completed: boolean
 }
 
 interface BoardProps {

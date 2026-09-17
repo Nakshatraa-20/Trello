@@ -15,6 +15,7 @@ interface Issue {
     title: string;
     boardId: number;
     sectionId: number;
+    completed: boolean
   }
 
 
@@ -41,14 +42,15 @@ function Section({section,issues,createIssue, deleteIssue}:SectionProps){
           {issues
             .filter((issue) => issue.sectionId === section.id)
             .map((issue) => (
-              <div key={issue.id} className="group relative mb-3 rounded-xl border border-slate-700/80 bg-slate-950/70 p-4 text-slate-100 shadow-md shadow-black/20 transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-950">{issue.title}
+              <div key={issue.id} className="group relative mb-3 rounded-xl border border-slate-700/80 bg-slate-950/70 p-4 text-slate-100 shadow-md shadow-black/20 transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-950">
+                <input type="checkbox"
+                checked={issue.completed}
+                onChange={()=> toggleCompleted(issue)}
+                <span >{issue.title} </span>
+
               
               <span className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-violet-500 to-cyan-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-              <button onClick={()=> deleteIssue(issue.id)}
-              className="rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs font-medium text-red-400 transition hover:border-red-500/40 hover:bg-red-500/20 hover:text-red-300"
-                 > Delete
-
-              </button>
+              
               </div>
             ))}  
             <input
