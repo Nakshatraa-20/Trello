@@ -61,16 +61,48 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
     );
   }
 
+  async function moveIssue(issueId: number, newSectionId: number) {
+    const [issues, setIssues] = useState<Issue[]>([])
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      "`http://localhost:3001/issue/${issueId/move}`",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          sectionId: newSectionId,
+        }),
+      },
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.log(data.message);
+      return;
+    }
+
+    setIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === issueId
+          ? { ...issue, sectionId: newSectionId }
+          : issue
+      )
+    );
+  }
+
   return (
     <div
       onDragOver={(e) => {
         e.preventDefault();
       }}
-      onDrop= {(e)=>{
-        const issueId= Number(e.dataTransfer.getData("issueId"))
-        console.log("issue:", issueId)
-        console.log("dropped into section", section.id)
+      onDrop={(e) => {
+        const issueId = Number(e.dataTransfer.getData("issueId"));
+        moveIssue(issueId, section.id);
       }}
+
       className="w-72 shrink-0 rounded-2xl border border-violet-400/20 bg-slate-800/95 p-4 shadow-xl shadow-black/30 backdrop-blur-sm"
     >
       <div className="mb-4 flex items-center justify-between">
