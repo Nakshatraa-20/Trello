@@ -251,6 +251,49 @@ res.json({issue})
 }
 )
 
-router.patch("/:issueId/move", async(req,res)=>
-        )
+router.patch("/:issueId/move", async(req,res)=> {
+  const issueId= Number(req.params.issueId)
+  const sectionId= Number(req.body.sectionId)
+
+  const issue= await prisma.issue.findUnique({
+    where:
+    {
+      id:issueId
+    }
+    })
+    if(!issue){
+      return res.status(403).json({
+        message:"Issue not found"
+      })
+    }
+    const section= await prisma.section.findUnique({
+      where:{
+        id: sectionId
+      }
+    })
+    if (!section) {
+      return res.status(404).json({
+        message: "Section not found",
+      });
+    }
+    if (issue.boardId !== section.boardId) {
+      return res.status(400).json({
+        message: "Cannot move issue to a section from another board",
+      });
+    }
+            const updateIssue= await prisma.issue.update({
+              where:{
+                id:issueId,
+              },
+              data:{
+                sectionId: sectionId
+              }
+            })
+            return res.status(200).json({
+              message: "Issue moved successfully",
+              issue: updateIssue,
+            });
+          });
+  
+
 export default router;
