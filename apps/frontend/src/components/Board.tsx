@@ -22,7 +22,7 @@ interface BoardProps {
   createSection: () => void;
 
   createIssue: (sectionId: number, title: string) => void;
-
+  setIssues: React.Dispatch<React.SetStateAction<Issue[]>>
   deleteIssue: (issueId: number) => void;
 }
 
@@ -32,7 +32,7 @@ function Board({
   sections,
   issues,
   createIssue,
-
+  setIssues,
   deleteIssue,
 }: BoardProps) {
   return (
@@ -72,7 +72,7 @@ function Board({
             section={section}
             issues={issues}
             createIssue={createIssue}
-
+             setIssues= {setIssues}
             deleteIssue={deleteIssue}
           />
         ))}

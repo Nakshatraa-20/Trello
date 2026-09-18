@@ -152,6 +152,7 @@ function BoardPage() {
         issues={issues}
         createIssue={createIssue}
         deleteIssue={deleteIssue}
+        setIssues= {setIssues}
       />
     </div>
   );

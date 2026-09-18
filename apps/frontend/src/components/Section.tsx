@@ -4,10 +4,12 @@ interface SectionProps {
     id: number;
     title: String;
     boardId: Number;
+
   };
   issues: Issue[];
   createIssue: (sectionId: number, title: string) => void;
   deleteIssue: (issueId: number) => void;
+  setIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
 }
 
 interface Issue {
@@ -18,7 +20,7 @@ interface Issue {
   completed: boolean;
 }
 
-function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
+function Section({ section, issues, createIssue, deleteIssue , setIssues}: SectionProps) {
   const issueTitle = useRef<HTMLInputElement>(null);
 
   function handleCreateIssue() {
@@ -30,7 +32,7 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
   }
 
   async function toggleCompleted(issue: Issue) {
-    const [issues, setIssues] = useState<Issue[]>([]);
+    
     const newCompletedValue = !issue.completed;
     const token = localStorage.getItem("token");
     const response = await fetch(
@@ -62,10 +64,10 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
   }
 
   async function moveIssue(issueId: number, newSectionId: number) {
-    const [issues, setIssues] = useState<Issue[]>([])
+   
     const token = localStorage.getItem("token");
     const response = await fetch(
-      "`http://localhost:3001/issue/${issueId/move}`",
+      `http://localhost:3001/issue/${issueId}/move`,
       {
         method: "PATCH",
         headers: {
