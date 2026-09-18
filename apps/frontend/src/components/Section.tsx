@@ -17,7 +17,7 @@ interface Issue {
   sectionId: number;
   completed: boolean;
 }
-const [issues, setIssues] = useState<Issue[]>([]);
+
 
 function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
   const issueTitle = useRef<HTMLInputElement>(null);
@@ -31,6 +31,7 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
   }
 
   async function toggleCompleted(issue: Issue) {
+    const [issues, setIssues] = useState<Issue[]>([]);
     const newCompletedValue = !issue.completed;
     const token = localStorage.getItem("token");
     const response = await fetch(
@@ -60,9 +61,16 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
       ),
     );
   }
+  
 
   return (
-    <div className="w-72 shrink-0 rounded-2xl border border-violet-400/20 bg-slate-800/95 p-4 shadow-xl shadow-black/30 backdrop-blur-sm">
+    <div 
+    onDragOver={(e)=>
+    {
+      e.preventDefault()
+    }}
+     className="w-72 shrink-0 rounded-2xl border border-violet-400/20 bg-slate-800/95 p-4 shadow-xl shadow-black/30 backdrop-blur-sm">
+      
       <div className="mb-4 flex items-center justify-between">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-200">
           {section.title}
@@ -76,7 +84,11 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
         .map((issue) => (
           <div
             key={issue.id}
-            className="group relative mb-3 rounded-xl border border-slate-700/80 bg-slate-950/70 p-4 text-slate-100 shadow-md shadow-black/20 transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-950"
+            draggable= {true}
+            onDragStart={(e)=>{
+              e.dataTransfer.setData("issueId", String(issue.id))
+            }}
+            className="cursor-grab active:cursor-grabbing group relative mb-3 rounded-xl border border-slate-700/80 bg-slate-950/70 p-4 text-slate-100 shadow-md shadow-black/20 transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-950"
           >
             <input
               type="checkbox"
@@ -101,6 +113,7 @@ function Section({ section, issues, createIssue, deleteIssue }: SectionProps) {
       >
         Create Issue
       </button>
+      
     </div>
   );
 }
