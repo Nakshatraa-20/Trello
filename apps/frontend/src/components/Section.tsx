@@ -95,6 +95,13 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
     );
   }
 
+  const stickyColors = [
+    "bg-sticky-yellow",
+    "bg-sticky-pink",
+    "bg-sticky-green",
+    "bg-sticky-blue",
+  ];
+
   return (
     <div
       onDragOver={(e) => {
@@ -124,7 +131,8 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
             onDragStart={(e) => {
               e.dataTransfer.setData("issueId", String(issue.id));
             }}
-            className="cursor-grab active:cursor-grabbing group relative mb-3 rounded-xl border border-slate-700/80 bg-slate-950/70 p-4 text-slate-100 shadow-md shadow-black/20 transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-950"
+            className={`group relative mb-4  border border-paper-border  p-4 text-ink shadow-md transition-transform             
+            ${stickyColors[issue.id % stickyColors.length]} duration-200 ${issue.id %2===0 ? "rotate-1" : "-rotate-1"} hover:rotate-0  hover:-translate-y-1` }
           >
             <input
               type="checkbox"
@@ -133,14 +141,14 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
             />
             <span>{issue.title} </span>
 
-            <span className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-violet-500 to-cyan-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+            
           </div>
         ))}
       <input
         type="text"
         ref={issueTitle}
         placeholder="Create an issue..."
-        className="mb-2 w-full rounded-xl border border-slate-700 bg-slate-950/55 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-500 transition focus:border-violet-400/60 focus:bg-slate-950"
+        className="mb-2 w-full border-b-2 border-paper-border bg-transparent px-2 py-2 text-sm text-ink outline-none placeholder:text-ink-muted"
       />
 
       <button
