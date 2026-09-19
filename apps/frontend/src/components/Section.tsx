@@ -115,8 +115,12 @@ function Section({
         moveIssue(issueId, section.id);
       }}
 
-      className="w-72 shrink-0 rounded-md border border-paper-border bg-paper-dark p-4 shadow-md"
+      className="relative mt-5 w-72 shrink-0 rounded-md border border-paper-border bg-paper-dark p-4 shadow-md"
     >
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute -top-4 left-1/2 z-10 h-7 w-24 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${section.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
+      />
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-ink font-handwritten">
           {section.title}
