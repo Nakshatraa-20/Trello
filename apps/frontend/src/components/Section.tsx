@@ -105,13 +105,13 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
         moveIssue(issueId, section.id);
       }}
 
-      className="w-72 shrink-0 rounded-2xl border border-violet-400/20 bg-slate-800/95 p-4 shadow-xl shadow-black/30 backdrop-blur-sm"
+      className="w-72 shrink-0 rounded-md border border-paper-border bg-paper-dark p-4 shadow-md"
     >
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-200">
+        <h2 className="text-lg font-semibold text-ink ">
           {section.title}
         </h2>
-        <span className="rounded-xl bg-slate-950/70 px-2 py-1 text-xs font-medium text-violet-200">
+        <span className="rounded-full bg-paper-card px-2 py-1 text-xs font-medium text-ink-muted">
           {issues.filter((issue) => issue.sectionId === section.id).length}
         </span>
       </div>

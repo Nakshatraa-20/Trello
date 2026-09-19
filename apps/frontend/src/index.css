@@ -128,3 +128,26 @@
     @apply font-sans;
     }
 }
+
+@theme {
+  /* Main surfaces */
+  --color-paper: #F8F1E4;
+  --color-paper-dark: #EFE5D3;
+  --color-paper-card: #FFFDF7;
+
+  /* Sticky notes */
+  --color-sticky-yellow: #FFE994;
+  --color-sticky-pink: #F5B7B1;
+  --color-sticky-green: #BFDDB8;
+  --color-sticky-blue: #B9D9EF;
+
+  /* Text */
+  --color-ink: #382F27;
+  --color-ink-muted: #74634E;
+
+  /* Borders */
+  --color-paper-border: #D8C6A5;
+
+  /* Accent */
+  --color-accent: #B85C3D;
+}
