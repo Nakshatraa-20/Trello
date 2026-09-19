@@ -115,7 +115,7 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
       className="w-72 shrink-0 rounded-md border border-paper-border bg-paper-dark p-4 shadow-md"
     >
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-ink ">
+        <h2 className="text-2xl font-semibold text-ink font-handwritten">
           {section.title}
         </h2>
         <span className="rounded-full bg-paper-card px-2 py-1 text-xs font-medium text-ink-muted">
@@ -131,15 +131,16 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
             onDragStart={(e) => {
               e.dataTransfer.setData("issueId", String(issue.id));
             }}
-            className={`group relative mb-4  border border-paper-border  p-4 text-ink shadow-md transition-transform             
+            className={`group relative mb-4  border border-paper-border px-4 py-3 text-ink shadow-md transition-transform             
             ${stickyColors[issue.id % stickyColors.length]} duration-200 ${issue.id %2===0 ? "rotate-1" : "-rotate-1"} hover:rotate-0  hover:-translate-y-1` }
           >
             <input
               type="checkbox"
               checked={issue.completed}
               onChange={() => toggleCompleted(issue)}
+              className="mt-1 h-5 w-5 shrink-0 cursor-pointer"
             />
-            <span>{issue.title} </span>
+            <span className={issue.completed?"text-base text-ink-muted/60 line-through":"text-base text-ink-muted"}>{issue.title} </span>
 
             
           </div>
