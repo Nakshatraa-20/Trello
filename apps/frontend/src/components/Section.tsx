@@ -4,7 +4,6 @@ interface SectionProps {
     id: number;
     title: String;
     boardId: Number;
-
   };
   issues: Issue[];
   createIssue: (sectionId: number, title: string) => void;
@@ -20,7 +19,13 @@ interface Issue {
   completed: boolean;
 }
 
-function Section({ section, issues, createIssue, deleteIssue , setIssues}: SectionProps) {
+function Section({
+  section,
+  issues,
+  createIssue,
+  deleteIssue,
+  setIssues,
+}: SectionProps) {
   const issueTitle = useRef<HTMLInputElement>(null);
 
   function handleCreateIssue() {
@@ -32,7 +37,6 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
   }
 
   async function toggleCompleted(issue: Issue) {
-    
     const newCompletedValue = !issue.completed;
     const token = localStorage.getItem("token");
     const response = await fetch(
@@ -64,7 +68,6 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
   }
 
   async function moveIssue(issueId: number, newSectionId: number) {
-   
     const token = localStorage.getItem("token");
     const response = await fetch(
       `http://localhost:3001/issue/${issueId}/move`,
@@ -88,10 +91,8 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
 
     setIssues((prev) =>
       prev.map((issue) =>
-        issue.id === issueId
-          ? { ...issue, sectionId: newSectionId }
-          : issue
-      )
+        issue.id === issueId ? { ...issue, sectionId: newSectionId } : issue,
+      ),
     );
   }
 
@@ -132,17 +133,25 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
               e.dataTransfer.setData("issueId", String(issue.id));
             }}
             className={`group relative mb-4  border border-paper-border px-4 py-3 text-ink shadow-md transition-transform             
-            ${stickyColors[issue.id % stickyColors.length]} duration-200 ${issue.id %2===0 ? "rotate-1" : "-rotate-1"} hover:rotate-0  hover:-translate-y-1` }
+            ${stickyColors[issue.id % stickyColors.length]} duration-200 ${issue.id % 2 === 0 ? "rotate-1" : "-rotate-1"} hover:rotate-0  hover:-translate-y-1`}
           >
-            <input
-              type="checkbox"
-              checked={issue.completed}
-              onChange={() => toggleCompleted(issue)}
-              className="mt-1 h-5 w-5 shrink-0 cursor-pointer"
-            />
-            <span className={issue.completed?"text-base text-ink-muted/60 line-through":"text-base text-ink-muted"}>{issue.title} </span>
-
-            
+            <div className="flex items-center gap-5">
+              <input
+                type="checkbox"
+                checked={issue.completed}
+                onChange={() => toggleCompleted(issue)}
+                className="mt-1 h-5 w-5 shrink-0 cursor-pointer"
+              />
+              <span
+                className={
+                  issue.completed
+                    ? "text-base text-ink-muted/60 line-through"
+                    : "text-base text-ink-muted"
+                }
+              >
+                {issue.title}{" "}
+              </span>
+            </div>
           </div>
         ))}
       <input
