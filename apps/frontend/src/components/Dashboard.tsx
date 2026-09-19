@@ -171,6 +171,7 @@ function Dashboard() {
           <h1 className="mt-2 text-4xl font-semibold tracking-tight">
             Your boards
           </h1>
+          <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-violet-400" />
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
             Plan projects, organise work, and keep everything moving.
           </p>

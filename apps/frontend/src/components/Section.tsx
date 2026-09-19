@@ -27,6 +27,7 @@ function Section({
   setIssues,
 }: SectionProps) {
   const issueTitle = useRef<HTMLInputElement>(null);
+  const [showIssueInput, setShowIssueInput] = useState(false);
 
   function handleCreateIssue() {
     const title = issueTitle.current?.value;
@@ -34,6 +35,7 @@ function Section({
       return;
     }
     createIssue(section.id, title);
+    setShowIssueInput(false);
   }
 
   async function toggleCompleted(issue: Issue) {
@@ -154,19 +156,38 @@ function Section({
             </div>
           </div>
         ))}
-      <input
-        type="text"
-        ref={issueTitle}
-        placeholder="Write a new note"
-        className="mb-2 w-full border-b-2 border-paper-border bg-transparent px-2 py-2 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent"
-      />
-
-      <button
-        onClick={handleCreateIssue}
-        className="mt-1 text-sm font-medium text-ink-muted transition hover: text-accent"
-      >
-        + Add note
-      </button>
+      {showIssueInput ? (
+        <div className="mt-2">
+          <input
+            type="text"
+            ref={issueTitle}
+            autoFocus
+            placeholder="Write a new note"
+            className="mb-2 w-full border-b-2 border-paper-border bg-transparent px-2 py-2 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent"
+          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleCreateIssue}
+              className="text-sm font-medium text-accent transition hover:text-ink"
+            >
+              Add note
+            </button>
+            <button
+              onClick={() => setShowIssueInput(false)}
+              className="text-sm font-medium text-ink-muted transition hover:text-ink"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowIssueInput(true)}
+          className="mt-1 text-sm font-medium text-ink-muted transition hover:text-accent"
+        >
+          + Add note
+        </button>
+      )}
     </div>
   );
 }
