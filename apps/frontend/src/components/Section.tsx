@@ -147,15 +147,15 @@ function Section({ section, issues, createIssue, deleteIssue , setIssues}: Secti
       <input
         type="text"
         ref={issueTitle}
-        placeholder="Create an issue..."
-        className="mb-2 w-full border-b-2 border-paper-border bg-transparent px-2 py-2 text-sm text-ink outline-none placeholder:text-ink-muted"
+        placeholder="Write a new note"
+        className="mb-2 w-full border-b-2 border-paper-border bg-transparent px-2 py-2 text-sm text-ink outline-none placeholder:text-ink-muted focus:border-accent"
       />
 
       <button
         onClick={handleCreateIssue}
-        className="w-full rounded-xl border border-violet-400/25 bg-slate-950/45 px-3 py-2 text-sm font-medium text-violet-100 transition duration-200 hover:border-violet-400/45 hover:bg-slate-950/70"
+        className="mt-1 text-sm font-medium text-ink-muted transition hover: text-accent"
       >
-        Create Issue
+        + Add note
       </button>
     </div>
   );
