@@ -152,4 +152,9 @@
   /* Accent */
   --color-accent: #B85C3D;
   --font-handwritten:"Kalam",cursive;
+
+  --color-board-rose: #E8C4BC;
+--color-board-sage: #C9D5BD;
+--color-board-blue: #C5D3D9;
+--color-board-lilac: #D5C8D8;
 }

@@ -160,6 +160,12 @@ function Dashboard() {
 
     setWorkspaceBoards((prev) => [...prev, data.board]);
   }
+  const boardColors = [
+    "bg-board-rose",
+    "bg-board-sage",
+    "bg-board-blue",
+    "bg-board-lilac",
+  ];
 
   return (
     <div className="min-h-screen bg-paper text-ink font-handwritten">
@@ -186,30 +192,43 @@ function Dashboard() {
               <Link
                 key={board.id}
                 to={`/board/${board.id}`}
-                className="group block h-40 w-72 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-6 shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800 hover:shadow-xl"
+                className={`group block h-40 w-72 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]} `}
               >
                 <h3 className="text-xl font-semibold">{board.title}</h3>
 
                 <p className="mt-2 text-sm text-slate-400">Open board →</p>
               </Link>
             ))}
-            <div
-              onClick={createPersonalBoard}
-              className="flex h-36 w-64 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-paper-boder bg-paper-card text-ink-muted transition hover:-translate-y-1 hover:border-[#C96F6A]"
-            >
-              <div
-                className="
+           <div
+  onClick={createPersonalBoard}
+  className="
+    flex h-36 w-64 cursor-pointer flex-col
+    items-center justify-center gap-3
+    rounded-md
+    border-2 border-dashed border-paper-border
+    bg-paper-dark
+    text-ink-muted
+    transition
+    hover:-translate-y-1
+    hover:bg-paper-dark
+  "
+>
+  <div
+    className="
       flex h-12 w-12 items-center justify-center
-      rounded-full border-2 border-ink-muted
-      text-3xl font-normal
+      rounded-full
+      border-2 border-ink-muted
+      text-3xl font-normal text-ink-muted
     "
-              >
-                +
-              </div>
-
-              <span className="text-lg font-bold">Create Board</span>
-            </div>
-          </div>
+  >
+    +
+  
+</div>
+  <span className="text-lg font-bold text-ink-muted">
+    Create a new board
+  </span>
+</div>
+        </div>
         </div>
 
         <div className="mt-12">
