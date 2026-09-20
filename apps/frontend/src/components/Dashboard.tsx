@@ -165,17 +165,14 @@ function Dashboard() {
     <div className="min-h-screen bg-paper text-ink font-handwritten">
       <main className="mx-auto max-w-[1600px] px-6 py-10">
         <header className="mb-10">
-          
-          <h1 className="text-5xl font-bold text-ink">
-            Your boards
-          </h1>
+          <h1 className="text-5xl font-bold text-ink">Your boards</h1>
           <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-[#C96F6A]" />
           <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
           </p>
         </header>
         <div>
-          <div className="flex items-end justify-between border-b border-white/10 pb-3">
+          <div className="flex items-end justify-between border-b border-paer-border pb-3">
             <div>
               <h2 className="text-2xl font-bold text-ink">Personal boards</h2>
               <p className="mt-1 text-base text-ink-muted">
@@ -196,15 +193,25 @@ function Dashboard() {
                 <p className="mt-2 text-sm text-slate-400">Open board →</p>
               </Link>
             ))}
+            <div
+              onClick={createPersonalBoard}
+              className="flex h-36 w-64 cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-paper-boder bg-paper-card text-ink-muted transition hover:-translate-y-1 hover:border-[#C96F6A]"
+            >
+              <div
+                className="
+      flex h-12 w-12 items-center justify-center
+      rounded-full border-2 border-ink-muted
+      text-3xl font-normal
+    "
+              >
+                +
+              </div>
+
+              <span className="text-lg font-bold">Create Board</span>
+            </div>
           </div>
         </div>
 
-        <button
-          onClick={createPersonalBoard}
-          className="mt-4 rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-violet-600/30"
-        >
-          Create Board
-        </button>
         <div className="mt-12">
           <div className="flex items-center justify-between">
             <div>
