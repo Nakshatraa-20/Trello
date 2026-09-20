@@ -177,8 +177,8 @@ function Dashboard() {
         <div>
           <div className="flex items-end justify-between border-b border-white/10 pb-3">
             <div>
-              <h2 className="text-lg font-semibold">Personal boards</h2>
-              <p className="mt-1 text-sm text-slate-400">
+              <h2 className="text-2xl font-bold text-ink">Personal boards</h2>
+              <p className="mt-1 text-base text-ink-muted">
                 Boards created for your own work.
               </p>
             </div>
