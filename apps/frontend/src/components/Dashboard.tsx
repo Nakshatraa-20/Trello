@@ -162,17 +162,15 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white">
+    <div className="min-h-screen bg-paper text-ink font-handwritten">
       <main className="mx-auto max-w-[1600px] px-6 py-10">
         <header className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">
-            Workspace
-          </p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-tight">
+          
+          <h1 className="text-5xl font-bold text-ink">
             Your boards
           </h1>
-          <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-violet-400" />
-          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
+          <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-[#C96F6A]" />
+          <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
           </p>
         </header>
