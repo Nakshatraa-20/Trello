@@ -231,7 +231,10 @@ function Dashboard() {
         </div>
         </div>
 
-        <div className="mt-12">
+       
+
+          
+          <div className="mt-12">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-ink">Workspaces</h2>
@@ -261,12 +264,7 @@ function Dashboard() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => createWorkspaceBoards(membership.org.id)}
-                    className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-500"
-                  >
-                    + Create Board
-                  </button>
+                  
                 </div>
 
                 <div className="mt-4 flex gap-4 overflow-x-auto pb-4">
@@ -285,14 +283,29 @@ function Dashboard() {
                         </p>
                       </Link>
                     ))}
+                    <div onClick= {()=>createWorkspaceBoards(membership.org.id)}
+                    className="h-40 w-72 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-paper-border bg-paper-dark text-ink-muted transition hover:-translate-y-1">
+                   <div
+    className="
+      flex h-12 w-12 items-center justify-center
+      rounded-full border-2 border-ink-muted
+      text-3xl
+    "
+  >
+    +
+  </div>
+  <span className="text-lg font-bold">
+    Create a new board
+  </span>
+
+                    
                 </div>
               </div>
             ))}
           </div>
-        </div>
+      </div>
       </main>
     </div>
   );
 }
-
 export default Dashboard;
