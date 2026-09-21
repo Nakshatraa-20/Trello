@@ -250,13 +250,13 @@ function Dashboard() {
           <div className="mt-6 space-y-10">
             {memberships.map((membership) => (
               <div key={membership.org.id}>
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center justify-between border-b border-paper-border pb-3">
                   <div>
-                    <h3 className="text-lg font-semibold">
+                    <h3 className="text-xl font-bold text-ink">
                       {membership.org.name}
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-400">
+                    <p className="mt-1 text-sm text-ink-muted">
                       {membership.org.description}
                     </p>
                   </div>
