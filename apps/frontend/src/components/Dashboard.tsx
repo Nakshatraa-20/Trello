@@ -170,11 +170,14 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-paper text-ink font-handwritten">
       <main className="mx-auto max-w-[1600px] px-6 py-10">
-        <header className="mb-10">
+        <header className="relative mb-10">
           <h1 className="text-5xl font-bold text-ink">Your boards</h1>
           <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-[#C96F6A]" />
           <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
+          </p>
+          <p className="absolute right-8 top-2 rotate-2 text-lg text-ink-muted">
+            Small steps still move you forward
           </p>
         </header>
         <div>
