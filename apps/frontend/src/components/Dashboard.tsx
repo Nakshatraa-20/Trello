@@ -192,17 +192,17 @@ function Dashboard() {
               <Link
                 key={board.id}
                 to={`/board/${board.id}`}
-                className={`group block h-40 w-72 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]} `}
+                className={`group block h-40 w-72 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
               >
                 <h3 className="text-xl font-semibold">{board.title}</h3>
 
-                <p className="mt-2 text-sm text-slate-400">Open board →</p>
+                <p className="mt-2 text-sm text-ink-muted">Open board →</p>
               </Link>
             ))}
            <div
   onClick={createPersonalBoard}
   className="
-    flex h-36 w-64 cursor-pointer flex-col
+    flex h-40 w-72 cursor-pointer flex-col
     items-center justify-center gap-3
     rounded-md
     border-2 border-dashed border-paper-border
@@ -234,14 +234,14 @@ function Dashboard() {
         <div className="mt-12">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Workspaces</h2>
-              <p className="mt-1 text-sm text-slate-400">
+              <h2 className="text-2xl font-bold text-ink">Workspaces</h2>
+              <p className="mt-1 text-base text-ink-muted">
                 Shared boards for your team and projects.
               </p>
             </div>
             <button
               onClick={createOrganization}
-              className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-500"
+              className="rounded-md border border-paper-border  px-5 py-2.5 bg-accent text-lg font-bold text-paper-card shadow-md transition hover:-translate-y-0.5 hover:opacity-90"
             >
               + Create Workspace
             </button>
@@ -276,7 +276,7 @@ function Dashboard() {
                       <Link
                         key={board.id}
                         to={`/board/${board.id}`}
-                        className="group block h-40 w-72 shrink-0 rounded-2xl border border-violet-400/25 bg-slate-800/95 p-6 shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-1 hover:border-violet-400/50 hover:bg-slate-800 hover:shadow-xl"
+                        className={`group block h-40 w-72 shrink-0 rounded-md border border-paper-border shadow-md p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
                       >
                         <h4 className="text-xl font-semibold">{board.title}</h4>
 
