@@ -294,11 +294,11 @@ function Dashboard() {
                       <Link
                         key={board.id}
                         to={`/board/${board.id}`}
-                        className={`group block h-40 w-60 shrink-0 rounded-md border border-paper-border shadow-md p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
+                        className={`group flex flex-col block h-40 w-60 shrink-0 rounded-md border border-paper-border shadow-md p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
                       >
                         <h4 className="text-xl font-semibold">{board.title}</h4>
-
-                        <p className="mt-2 text-sm text-slate-400">
+                         <p className="mt-2 text-sm text-ink-muted">{board.description}</p>
+                        <p className="mt-auto text-sm font-semibold text-ink-muted">
                           Open board →
                         </p>
                       </Link>
