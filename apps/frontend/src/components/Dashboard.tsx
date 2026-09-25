@@ -7,6 +7,7 @@ interface Board {
   title: string;
   userId: number | null;
   orgId: number | null;
+  description: string | null;
 }
 
 interface Organization {
@@ -48,6 +49,10 @@ function Dashboard() {
     const title = prompt("enter board name");
     if (!title) return;
 
+    const description= prompt("enter board description")
+    if(!description)
+      return
+
     const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:3001/board/personal-board", {
       method: "POST",
@@ -57,6 +62,7 @@ function Dashboard() {
       },
       body: JSON.stringify({
         title,
+        description
       }),
     });
 
@@ -190,7 +196,7 @@ function Dashboard() {
           </div>
         </header>
         <div>
-          <div className="flex items-end justify-between border-b border-paer-border pb-3">
+          <div className="flex items-end justify-between border-b border-paper-border pb-3">
             <div>
               <h2 className="text-2xl font-bold text-ink">Personal boards</h2>
               <p className="mt-1 text-base text-ink-muted">
@@ -199,7 +205,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-4 ">
+          <div className="mt-4  flex flex-wrap gap-4 ">
             {personalBoards.map((board) => (
               <Link
                 key={board.id}

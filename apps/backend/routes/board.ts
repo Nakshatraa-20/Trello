@@ -24,6 +24,7 @@ router.post("/org-board-post", async (req, res) => {
       title: req.body.title, 
       orgId,
       userId: (req as any).userId
+      
    },
   });
 
@@ -35,7 +36,8 @@ router.post("/personal-board", async(req,res)=>
   const board= await prisma.boards.create({
     data: {
       title: req.body.title,
-      userId: (req as any).userId
+      userId: (req as any).userId,
+      description: req.body.description
     }
   })
   return res.status(201).json({board})
