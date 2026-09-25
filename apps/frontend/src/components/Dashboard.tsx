@@ -186,17 +186,19 @@ function Dashboard() {
           <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
           </p>
-          <div className="absolute right-12 top-0 rotate-3">
-            <div className="absolute -top-3 left-1/2 z-10 h-7 w-20 -translate-x-1/2 -rotate-3 bg-paper-dark/80"/>
-            <div className="flex h-40 w-40 items-center justify-center bg-sticky-pink p-5 text-center shadow-md" >
-          <p className="absolute right-8 top-2 rotate-2 text-lg text-ink-muted">
-            Small steps< br />
-             still move you<br />
-             forward < br/>
-             ♡
-          </p>
-          
-          </div>
+          <div className="absolute right-12 top-0 -rotate-6">
+            <div className="relative flex h-40 w-40 items-center justify-center border border-paper-border bg-sticky-pink p-5 text-center shadow-md">
+              <div
+                aria-hidden="true"
+                className="absolute -top-3 left-1/2 z-10 h-7 w-20 -translate-x-1/2 -rotate-2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm"
+              />
+              <p className="-rotate-2 text-center text-xl leading-7 text-ink-muted">
+                Small steps<br />
+                still move you<br />
+                forward<br />
+                ♡
+              </p>
+            </div>
           </div>
         </header>
         <div>
@@ -214,8 +216,12 @@ function Dashboard() {
               <Link 
                 key={board.id}
                 to={`/board/${board.id}`}
-                className={`group flex flex-col block h-40 w-60 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
+                className={`group relative mt-3 flex h-40 w-60 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
               >
+                <div
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
+                />
                 <div className= "flex items-start justify-between">
                 <h3 className="text-xl font-semibold">{board.title}</h3> 
                 <span className="text-2xl">{board.emoji}</span></div>
@@ -300,8 +306,12 @@ function Dashboard() {
                       <Link
                         key={board.id}
                         to={`/board/${board.id}`}
-                        className={`group flex flex-col block h-40 w-60 shrink-0 rounded-md border border-paper-border shadow-md p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
+                        className={`group relative mt-3 flex h-40 w-60 shrink-0 flex-col rounded-md border border-paper-border p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
                       >
+                        <div
+                          aria-hidden="true"
+                          className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
+                        />
                         <h4 className="text-xl font-semibold">{board.title}</h4>
                          
                         <p className="mt-auto text-sm font-semibold text-ink-muted">
