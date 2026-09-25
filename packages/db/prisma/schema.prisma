@@ -42,6 +42,7 @@ model Boards{
   userId    Int?
   user      User?    @relation(fields:[userId], references:[id]) 
   orgId    Int?
+  emoji    String?
   org      Org?      @relation(fields:[orgId], references:[id])
   section  Section[]
   issue    Issue[]
