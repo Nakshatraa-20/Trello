@@ -286,7 +286,7 @@ function Dashboard() {
                       <Link
                         key={board.id}
                         to={`/board/${board.id}`}
-                        className={`group block h-40 w-72 shrink-0 rounded-md border border-paper-border shadow-md p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
+                        className={`group block h-40 w-60 shrink-0 rounded-md border border-paper-border shadow-md p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
                       >
                         <h4 className="text-xl font-semibold">{board.title}</h4>
 
@@ -296,7 +296,7 @@ function Dashboard() {
                       </Link>
                     ))}
                     <div onClick= {()=>createWorkspaceBoards(membership.org.id)}
-                    className="h-40 w-72 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-paper-border bg-paper-dark text-ink-muted transition hover:-translate-y-1">
+                    className="h-40 w-60 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-paper-border bg-paper-dark text-ink-muted transition hover:-translate-y-1">
                    <div
     className="
       flex h-12 w-12 items-center justify-center
