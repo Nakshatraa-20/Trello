@@ -169,7 +169,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-paper text-ink font-handwritten">
-      <main className="mx-auto max-w-[1600px] px-6 py-10">
+      <main className="mx-auto max-w-[1280px] px-8 py-8">
         <header className="relative mb-10">
           <h1 className="text-5xl font-bold text-ink">Your boards</h1>
           <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-[#C96F6A]" />
@@ -204,7 +204,7 @@ function Dashboard() {
               <Link
                 key={board.id}
                 to={`/board/${board.id}`}
-                className={`group block h-40 w-72 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
+                className={`group block h-40 w-60 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
               >
                 <h3 className="text-xl font-semibold">{board.title}</h3>
 
@@ -214,7 +214,7 @@ function Dashboard() {
            <div
   onClick={createPersonalBoard}
   className="
-    flex h-40 w-72 cursor-pointer flex-col
+    flex h-40 w-60 cursor-pointer flex-col
     items-center justify-center gap-3
     rounded-md
     border-2 border-dashed border-paper-border
