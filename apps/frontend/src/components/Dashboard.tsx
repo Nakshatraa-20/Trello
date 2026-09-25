@@ -216,7 +216,9 @@ function Dashboard() {
                 to={`/board/${board.id}`}
                 className={`group flex flex-col block h-40 w-60 rounded-md border border-paper-border p-6 shadow-md  transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
               >
-                <h3 className="text-xl font-semibold">{board.title}</h3>
+                <div className= "flex items-start justify-between">
+                <h3 className="text-xl font-semibold">{board.title}</h3> 
+                <span className="text-2xl">{board.emoji}</span></div>
                 <p className="mt-2 text-sm text-ink-muted">
                 {board.description}</p>
 
