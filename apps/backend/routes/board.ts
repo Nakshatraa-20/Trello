@@ -37,7 +37,8 @@ router.post("/personal-board", async(req,res)=>
     data: {
       title: req.body.title,
       userId: (req as any).userId,
-      description: req.body.description
+      description: req.body.description,
+      emoji:req.body.emoji
     }
   })
   return res.status(201).json({board})
