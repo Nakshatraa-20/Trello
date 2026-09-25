@@ -176,9 +176,18 @@ function Dashboard() {
           <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
           </p>
+          <div className="absolute right-12 top-0 rotate-3">
+            <div className="absolute -top-3 left-1/2 z-10 h-7 w-20 -translate-x-1/2 -rotate-3 bg-paper-dark/80"/>
+            <div className="flex h-40 w-40 items-center justify-center bg-sticky-pink p-5 text-center shadow-md" >
           <p className="absolute right-8 top-2 rotate-2 text-lg text-ink-muted">
-            Small steps still move you forward
+            Small steps< br />
+             still move you<br />
+             forward < br/>
+             ♡
           </p>
+          
+          </div>
+          </div>
         </header>
         <div>
           <div className="flex items-end justify-between border-b border-paer-border pb-3">
