@@ -190,7 +190,7 @@ function Dashboard() {
             <div className="relative flex h-40 w-40 items-center justify-center border border-paper-border bg-sticky-pink p-5 text-center shadow-md">
               <div
                 aria-hidden="true"
-                className="absolute -top-3 left-1/2 z-10 h-7 w-20 -translate-x-1/2 -rotate-2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm"
+                className="absolute -top-3 left-1/2 z-10 h-7 w-14 -translate-x-1/2 -rotate-2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm"
               />
               <p className="-rotate-2 text-center text-xl leading-7 text-ink-muted">
                 Small steps<br />
@@ -220,7 +220,7 @@ function Dashboard() {
               >
                 <div
                   aria-hidden="true"
-                  className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
+                  className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
                 />
                 <div className= "flex items-start justify-between">
                 <h3 className="text-xl font-semibold">{board.title}</h3> 
@@ -310,7 +310,7 @@ function Dashboard() {
                       >
                         <div
                           aria-hidden="true"
-                          className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
+                          className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
                         />
                         <h4 className="text-xl font-semibold">{board.title}</h4>
                          
