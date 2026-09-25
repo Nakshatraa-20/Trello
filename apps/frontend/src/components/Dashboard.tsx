@@ -216,7 +216,7 @@ function Dashboard() {
               <Link 
                 key={board.id}
                 to={`/board/${board.id}`}
-                className={`group relative mt-3 flex h-40 w-60 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
+                className={`group relative mt-3 flex h-36 w-52 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
               >
                 <div
                   aria-hidden="true"
@@ -234,7 +234,7 @@ function Dashboard() {
            <div
   onClick={createPersonalBoard}
   className="
-    flex h-40 w-60 cursor-pointer flex-col
+    flex h-36 w-52 cursor-pointer flex-col
     items-center justify-center gap-3
     rounded-md
     border-2 border-dashed border-paper-border
@@ -306,7 +306,7 @@ function Dashboard() {
                       <Link
                         key={board.id}
                         to={`/board/${board.id}`}
-                        className={`group relative mt-3 flex h-40 w-60 shrink-0 flex-col rounded-md border border-paper-border p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
+                        className={`group relative mt-3 flex h-36 w-52 shrink-0 flex-col rounded-md border border-paper-border p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
                       >
                         <div
                           aria-hidden="true"
@@ -320,7 +320,7 @@ function Dashboard() {
                       </Link>
                     ))}
                     <div onClick= {()=>createWorkspaceBoards(membership.org.id)}
-                    className="h-40 w-60 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-paper-border bg-paper-dark text-ink-muted transition hover:-translate-y-1">
+                    className="h-36 w-52 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-paper-border bg-paper-dark text-ink-muted transition hover:-translate-y-1">
                    <div
     className="
       flex h-12 w-12 items-center justify-center
@@ -342,6 +342,21 @@ function Dashboard() {
           </div>
       </div>
       </main>
+      <div aria-hidden="true" className="pointer-events-none fixed bottom-9 right-12 z-10 h-32 w-72">
+        <p className="absolute right-0 top-1 rotate-[-6deg] text-right font-handwritten text-2xl leading-7 text-ink-muted">
+          Ideas become things<br />
+          when you begin. <span className="text-accent">✦</span>
+        </p>
+        <svg
+          className="absolute bottom-0 right-40 h-12 w-16 -rotate-6 text-ink-muted"
+          viewBox="0 0 80 56"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M5 8C10 31 30 44 57 39" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M50 31L59 39L49 46" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
     </div>
   );
 }
