@@ -286,7 +286,7 @@ function Dashboard() {
             {memberships.map((membership) => (
               <div
                 key={membership.org.id}
-                className={`group relative mt-3 flex h-36 w-52 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[membership.org.id % boardColors.length]}`}
+                className={`group relative mt-3 flex h-40 w-72 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[membership.org.id % boardColors.length]}`}
               >
                 <div
                   aria-hidden="true"
