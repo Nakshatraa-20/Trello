@@ -60,6 +60,35 @@ function CardAttachment({ id }: { id: number }) {
   }
 }
 
+function SparkleDoodles({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`pointer-events-none h-14 w-20 ${className}`}
+      viewBox="0 0 80 56"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M19 3L22 15L31 19L22 23L19 35L16 23L7 19L16 15L19 3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M55 20L57 29L65 32L57 35L55 44L53 35L45 32L53 29L55 20Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function AccentLines({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`pointer-events-none h-10 w-8 ${className}`}
+      viewBox="0 0 32 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M5 8L13 13M3 19L13 20M5 30L13 26" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function Dashboard() {
   const [personalBoards, setPersonalBoards] = useState<Board[]>([]);
   const [workspaceBoards, setWorkspaceBoards] = useState<Board[]>([]);
@@ -223,7 +252,10 @@ function Dashboard() {
           <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
           </p>
+          <SparkleDoodles className="absolute left-[34rem] top-3 hidden text-ink-muted lg:block" />
           <div className="absolute right-12 top-0 -rotate-6">
+            <AccentLines className="absolute -left-10 top-1/2 -translate-y-1/2 -rotate-[18deg] text-ink-muted" />
+            <AccentLines className="absolute -right-10 top-1/2 -translate-y-1/2 rotate-[18deg] scale-x-[-1] text-ink-muted" />
             <div className="relative flex h-40 w-40 items-center justify-center border border-paper-border bg-sticky-pink p-5 text-center shadow-md">
               <div
                 aria-hidden="true"
@@ -241,13 +273,14 @@ function Dashboard() {
         <div>
           <div className="flex items-end justify-between border-b border-paper-border pb-3">
             <div>
-              <div className="inline-block -rotate-1">
+              <div className="relative inline-block -rotate-1">
                 <div
                   className="border border-paper-border bg-board-rose px-5 py-1.5 shadow-sm"
                   style={{ clipPath: "polygon(0 0,100% 0,100% 8%,96% 12%,100% 16%,96% 20%,100% 24%,96% 28%,100% 32%,96% 36%,100% 40%,96% 44%,100% 48%,96% 52%,100% 56%,96% 60%,100% 64%,96% 68%,100% 72%,96% 76%,100% 80%,96% 84%,100% 88%,96% 92%,100% 96%,100% 100%,0 100%,0 96%,4% 92%,0 88%,4% 84%,0 80%,4% 76%,0 72%,4% 68%,0 64%,4% 60%,0 56%,4% 52%,0 48%,4% 44%,0 40%,4% 36%,0 32%,4% 28%,0 24%,4% 20%,0 16%,4% 12%,0 8%,4% 4%,0 0)" }}
                 >
                   <h2 className="text-3xl font-bold text-ink">Personal boards</h2>
                 </div>
+                <AccentLines className="absolute -left-9 top-1/2 -translate-y-1/2 -rotate-[12deg] text-ink-muted" />
               </div>
               <p className="mt-1 text-base text-ink-muted">
                 Boards created for your own work.
@@ -310,13 +343,14 @@ function Dashboard() {
           <div className="mt-12">
           <div className="flex items-center justify-between">
             <div>
-              <div className="inline-block rotate-[0.5deg]">
+              <div className="relative inline-block rotate-[0.5deg]">
                 <div
                   className="border border-paper-border bg-board-sage px-5 py-1.5 shadow-sm"
                   style={{ clipPath: "polygon(0 0,100% 0,100% 8%,96% 12%,100% 16%,96% 20%,100% 24%,96% 28%,100% 32%,96% 36%,100% 40%,96% 44%,100% 48%,96% 52%,100% 56%,96% 60%,100% 64%,96% 68%,100% 72%,96% 76%,100% 80%,96% 84%,100% 88%,96% 92%,100% 96%,100% 100%,0 100%,0 96%,4% 92%,0 88%,4% 84%,0 80%,4% 76%,0 72%,4% 68%,0 64%,4% 60%,0 56%,4% 52%,0 48%,4% 44%,0 40%,4% 36%,0 32%,4% 28%,0 24%,4% 20%,0 16%,4% 12%,0 8%,4% 4%,0 0)" }}
                 >
                   <h2 className="text-3xl font-bold text-ink">Workspaces</h2>
                 </div>
+                <AccentLines className="absolute -left-9 top-1/2 -translate-y-1/2 rotate-[8deg] text-ink-muted" />
               </div>
               <p className="mt-1 text-base text-ink-muted">
                 Shared boards for your team and projects.
