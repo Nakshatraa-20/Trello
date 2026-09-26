@@ -254,8 +254,8 @@ function Dashboard() {
           </p>
           <SparkleDoodles className="absolute left-[34rem] top-3 hidden text-ink-muted lg:block" />
           <div className="absolute right-12 top-0 -rotate-6">
-            <AccentLines className="absolute -left-10 top-1/2 -translate-y-1/2 -rotate-[18deg] text-ink-muted" />
-            <AccentLines className="absolute -right-10 top-1/2 -translate-y-1/2 rotate-[18deg] scale-x-[-1] text-ink-muted" />
+            <AccentLines className="absolute -left-9 -top-2 -rotate-[28deg] text-ink-muted" />
+            <AccentLines className="absolute -bottom-2 -right-9 rotate-[28deg] scale-x-[-1] text-ink-muted" />
             <div className="relative flex h-40 w-40 items-center justify-center border border-paper-border bg-sticky-pink p-5 text-center shadow-md">
               <div
                 aria-hidden="true"
