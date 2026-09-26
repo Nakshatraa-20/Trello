@@ -282,61 +282,23 @@ function Dashboard() {
             </button>
           </div>
 
-          <div className="mt-6 space-y-10">
+          <div className="mt-6 flex flex-wrap gap-4">
             {memberships.map((membership) => (
-              <div key={membership.org.id}>
-                <div className="flex items-center justify-between border-b border-paper-border pb-3">
-                  <div>
-                    <h3 className="text-xl font-bold text-ink">
-                      {membership.org.name}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-ink-muted">
-                      {membership.org.description}
-                    </p>
-                  </div>
-
-                  
-                </div>
-
-                <div className="mt-4 flex gap-4 overflow-x-auto pb-4">
-                  {workspaceBoards
-                    .filter((board) => board.orgId === membership.org.id)
-                    .map((board) => (
-                      <Link
-                        key={board.id}
-                        to={`/board/${board.id}`}
-                        className={`group relative mt-3 flex h-36 w-52 shrink-0 flex-col rounded-md border border-paper-border p-6 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id% boardColors.length]}` }
-                      >
-                        <div
-                          aria-hidden="true"
-                          className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
-                        />
-                        <h4 className="text-xl font-semibold">{board.title}</h4>
-                         
-                        <p className="mt-auto text-sm font-semibold text-ink-muted">
-                          Open board →
-                        </p>
-                      </Link>
-                    ))}
-                    <div onClick= {()=>createWorkspaceBoards(membership.org.id)}
-                    className="h-36 w-52 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-paper-border bg-paper-dark text-ink-muted transition hover:-translate-y-1">
-                   <div
-    className="
-      flex h-12 w-12 items-center justify-center
-      rounded-full border-2 border-ink-muted
-      text-3xl
-    "
-  >
-    +
-  </div>
-  <span className="text-lg font-bold">
-    Create a new board
-  </span>
-
-                    
-                </div>
-              </div>
+              <div
+                key={membership.org.id}
+                className={`group relative mt-3 flex h-36 w-52 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[membership.org.id % boardColors.length]}`}
+              >
+                <div
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${membership.org.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
+                />
+                <h3 className="text-xl font-semibold">{membership.org.name}</h3>
+                <p className="mt-2 text-sm text-ink-muted">
+                  {membership.org.description}
+                </p>
+                <p className="mt-auto text-sm font-semibold text-ink-muted">
+                  View boards →
+                </p>
               </div>
             ))}
           </div>
