@@ -216,7 +216,7 @@ function Dashboard() {
               <Link 
                 key={board.id}
                 to={`/board/${board.id}`}
-                className={`group relative mt-3 flex h-36 w-52 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[board.id % boardColors.length]}`}
+                className={`group relative mt-3 flex h-40 w-60 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${board.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[board.id % boardColors.length]}`}
               >
                 <div
                   aria-hidden="true"
@@ -234,7 +234,7 @@ function Dashboard() {
            <div
   onClick={createPersonalBoard}
   className="
-    flex h-36 w-52 cursor-pointer flex-col
+    mt-3 flex h-40 w-60 -rotate-[0.5deg] cursor-pointer flex-col
     items-center justify-center gap-3
     rounded-md
     border-2 border-dashed border-paper-border
@@ -286,7 +286,7 @@ function Dashboard() {
             {memberships.map((membership) => (
               <div
                 key={membership.org.id}
-                className={`group relative mt-3 flex h-40 w-72 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${boardColors[membership.org.id % boardColors.length]}`}
+                className={`group relative mt-3 flex h-40 w-72 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${membership.org.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[membership.org.id % boardColors.length]}`}
               >
                 <div
                   aria-hidden="true"
