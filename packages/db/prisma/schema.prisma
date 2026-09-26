@@ -23,6 +23,8 @@ model User{
   issueMapping  IssueMapping[]
   comment       Comment[]
   boards        Boards[]
+  sentInvitations Invitation[] @relation("SentInvitations")
+receivedInvitations Invitation[] @relation("ReceivedInvitations")
 }
 
 
@@ -110,8 +112,22 @@ model Comment{
 }
 
 model Invitation {
-  id     Int    @id   @default(autoincrement())
-  orgId  Int
-  org    Org    @relation(fields:[orgId], refrences:[id])
-}
+  id                  Int    @id   @default(autoincrement())
+  orgId               Int
+  org                 Org    @relation(fields:[orgId], refrences:[id])
+
+  invitedById         Int
+  invitedBy          User    @relation("SentInvitations",fields:[invitedById], references:[id])
+  
+  userId             Int?
+  invitedUser        User?     @relation("ReceivedInvitations",fields:[userId],references:[id])
+
+  email              String?
+  token              String    @unique
+  role               String    @default("member")
+  status             String    @default("pending")
+  expiresAt          DateTime
+  createdAt          DateTime   @default(now())
+
+  }
 
