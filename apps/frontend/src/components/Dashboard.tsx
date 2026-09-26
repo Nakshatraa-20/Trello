@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Pin } from "lucide-react";
 import Board from "./Board";
 
 interface Board {
@@ -21,6 +22,42 @@ interface Membership {
   orgId: number;
   role: string;
   org: Organization;
+}
+
+function CardAttachment({ id }: { id: number }) {
+  switch (id % 3) {
+    case 0:
+      return (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rotate-2 rounded-sm border border-white/40 shadow-sm"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, #f3a6b3 0, #f3a6b3 3px, #ffe4e8 3px, #ffe4e8 6px)",
+          }}
+        />
+      );
+    case 1:
+      return (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 -rotate-2 rounded-sm border border-white/40 shadow-sm"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, #9fcdb0 0, #9fcdb0 3px, #e3f4e5 3px, #e3f4e5 6px)",
+          }}
+        />
+      );
+    default:
+      return (
+        <Pin
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-5 left-5 z-10 h-8 w-8 -rotate-[28deg] text-[#c96072] drop-shadow-sm"
+          fill="#f3a6b3"
+          strokeWidth={1.8}
+        />
+      );
+  }
 }
 
 function Dashboard() {
@@ -218,10 +255,7 @@ function Dashboard() {
                 to={`/board/${board.id}`}
                 className={`group relative mt-3 flex h-40 w-60 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${board.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[board.id % boardColors.length]}`}
               >
-                <div
-                  aria-hidden="true"
-                  className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${board.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
-                />
+                <CardAttachment id={board.id} />
                 <div className= "flex items-start justify-between">
                 <h3 className="text-xl font-semibold">{board.title}</h3> 
                 <span className="text-2xl">{board.emoji}</span></div>
@@ -288,10 +322,7 @@ function Dashboard() {
                 key={membership.org.id}
                 className={`group relative mt-3 flex h-40 w-72 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${membership.org.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[membership.org.id % boardColors.length]}`}
               >
-                <div
-                  aria-hidden="true"
-                  className={`pointer-events-none absolute -top-3 left-1/2 z-10 h-6 w-14 -translate-x-1/2 rounded-sm border border-white/25 bg-[#e8c790]/75 shadow-sm ${membership.org.id % 2 === 0 ? "rotate-2" : "-rotate-2"}`}
-                />
+                <CardAttachment id={membership.org.id} />
                 <h3 className="text-xl font-semibold">{membership.org.name}</h3>
                 <p className="mt-2 text-sm text-ink-muted">
                   {membership.org.description}
