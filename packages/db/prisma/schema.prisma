@@ -18,6 +18,7 @@ model User{
   id             Int        @id        @default(autoincrement())
   username       String     @unique    
   password      String
+  email         String      @unique
   membership    Membership[]
   issueMapping  IssueMapping[]
   comment       Comment[]
@@ -31,6 +32,7 @@ model  Org{
   description       String      
   boards            Boards[]
   membership        Membership[]
+  invitations       Invitation[]
 
 }
 
@@ -105,5 +107,11 @@ model Comment{
 
   issueId    Int
   issue      Issue    @relation(fields:[issueId],references:id)
+}
+
+model Invitation {
+  id     Int    @id   @default(autoincrement())
+  orgId  Int
+  org    Org    @relation(fields:[orgId], refrences:[id])
 }
 
