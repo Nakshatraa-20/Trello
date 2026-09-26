@@ -241,7 +241,14 @@ function Dashboard() {
         <div>
           <div className="flex items-end justify-between border-b border-paper-border pb-3">
             <div>
-              <h2 className="text-2xl font-bold text-ink">Personal boards</h2>
+              <div className="inline-block -rotate-1">
+                <div
+                  className="border border-paper-border bg-board-rose px-5 py-1.5 shadow-sm"
+                  style={{ clipPath: "polygon(0 0,100% 0,100% 8%,96% 12%,100% 16%,96% 20%,100% 24%,96% 28%,100% 32%,96% 36%,100% 40%,96% 44%,100% 48%,96% 52%,100% 56%,96% 60%,100% 64%,96% 68%,100% 72%,96% 76%,100% 80%,96% 84%,100% 88%,96% 92%,100% 96%,100% 100%,0 100%,0 96%,4% 92%,0 88%,4% 84%,0 80%,4% 76%,0 72%,4% 68%,0 64%,4% 60%,0 56%,4% 52%,0 48%,4% 44%,0 40%,4% 36%,0 32%,4% 28%,0 24%,4% 20%,0 16%,4% 12%,0 8%,4% 4%,0 0)" }}
+                >
+                  <h2 className="text-3xl font-bold text-ink">Personal boards</h2>
+                </div>
+              </div>
               <p className="mt-1 text-base text-ink-muted">
                 Boards created for your own work.
               </p>
@@ -303,7 +310,14 @@ function Dashboard() {
           <div className="mt-12">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-ink">Workspaces</h2>
+              <div className="inline-block rotate-[0.5deg]">
+                <div
+                  className="border border-paper-border bg-board-sage px-5 py-1.5 shadow-sm"
+                  style={{ clipPath: "polygon(0 0,100% 0,100% 8%,96% 12%,100% 16%,96% 20%,100% 24%,96% 28%,100% 32%,96% 36%,100% 40%,96% 44%,100% 48%,96% 52%,100% 56%,96% 60%,100% 64%,96% 68%,100% 72%,96% 76%,100% 80%,96% 84%,100% 88%,96% 92%,100% 96%,100% 100%,0 100%,0 96%,4% 92%,0 88%,4% 84%,0 80%,4% 76%,0 72%,4% 68%,0 64%,4% 60%,0 56%,4% 52%,0 48%,4% 44%,0 40%,4% 36%,0 32%,4% 28%,0 24%,4% 20%,0 16%,4% 12%,0 8%,4% 4%,0 0)" }}
+                >
+                  <h2 className="text-3xl font-bold text-ink">Workspaces</h2>
+                </div>
+              </div>
               <p className="mt-1 text-base text-ink-muted">
                 Shared boards for your team and projects.
               </p>
