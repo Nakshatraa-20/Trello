@@ -44,7 +44,7 @@ router.delete("/delete-org", async (req, res) => {
 router.post("/:orgId/invite",async(req,res)=>
 {
   const orgId= Number(req.params.orgId)
-  const invitedById= (req as any).userId
+  const inviterId= (req as any).userId
 
   const username= req.body.username
   const email= req.body.email
@@ -61,7 +61,7 @@ router.post("/:orgId/invite",async(req,res)=>
   }
   const membership= await prisma.membership.findFirst({
     where:{
-      userId: invitedById,
+      userId: inviterId,
       orgId,
       role:"admin"
     }
@@ -72,8 +72,9 @@ router.post("/:orgId/invite",async(req,res)=>
       message:"you are not eligible to send the invitation"
     })
   }
+  let invitedUser=null
   if(username){
-    const invitedUser= await prisma.user.findUnique({
+     invitedUser= await prisma.user.findUnique({
          where:{
           username
          }
@@ -86,7 +87,7 @@ router.post("/:orgId/invite",async(req,res)=>
   }
       if(email){
         const normalisedEmail= email.trim().toLowerCase()
-        const invitedUser= await prisma.user.findUnique({
+         invitedUser= await prisma.user.findUnique({
           where:{
             email:normalisedEmail
           }
@@ -123,6 +124,19 @@ router.post("/:orgId/invite",async(req,res)=>
     const token= crypto.randomBytes(32).toString("hex")
    const expiresAt= new Date()
    expiresAt.setDate(expiresAt.getDate()+7)
+
+   const invitation= await prisma.invitation.create({
+    data:{
+      orgId,
+      invitedById: inviterId,
+      userId: invitedUser? invitedUser.id : null,
+      email: email? email.trim().toLowerCase():null,
+      token,
+      role:"member",
+      status:"pending",
+      expiresAt
+    }
+   })
 })
 
 
