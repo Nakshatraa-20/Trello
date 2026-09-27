@@ -14,8 +14,15 @@ router.post("/signup", async (req, res) => {
     return res.status(400).json({ message: "Invalid input" });
   }
 
-  const { username, password } = result.data;
-  const userExists = await prisma.user.findUnique({ where: { username } });
+  const { username, password,email } = result.data;
+  const userExists = await prisma.user.findFirst({ 
+    where:{
+      OR:[
+        {username: result.data.username},
+        {email: result.data.email}
+      ]}
+    
+   });
 
   if (userExists) {
     return res.status(409).json({ message: "User already exists" });
@@ -23,7 +30,7 @@ router.post("/signup", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { username, password: hashedPassword },
+    data: { username, password: hashedPassword,email },
   });
 
   return res.status(201).json({
