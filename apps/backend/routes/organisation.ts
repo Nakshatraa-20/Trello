@@ -121,7 +121,8 @@ router.post("/:orgId/invite",async(req,res)=>
       }
     }
     const token= crypto.randomBytes(32).toString("hex")
-   
+   const expiresAt= new Date()
+   expiresAt.setDate(expiresAt.getDate()+7)
 })
 
 
