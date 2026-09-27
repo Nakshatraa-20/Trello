@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "db/client";
 import { authMiddleware } from "../middleware/auth";
+import crypto from "crypto"
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -119,6 +120,8 @@ router.post("/:orgId/invite",async(req,res)=>
         });
       }
     }
+    const token= crypto.randomBytes(32).toString("hex")
+   
 })
 
 
