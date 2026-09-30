@@ -50,10 +50,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
         className="pointer-events-none absolute bottom-0 left-0 z-0 hidden w-full min-w-[900px] lg:block"
       />
 
-      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-8 lg:px-12">
-        <Link to="/" className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          nakshatraa <span className="text-pink-400">♡</span>
-        </Link>
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-end px-6 py-8 lg:px-12">
         <p className="text-base text-ink-muted sm:text-xl">
           Already have an account?{" "}
           <Link to="/login" className="ml-1 border-b-2 border-pink-400 pb-1 font-bold text-pink-500">
@@ -62,13 +59,13 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
         </p>
       </header>
 
-      <main className="relative z-10 mx-auto grid max-w-7xl gap-10 px-6 pb-16 pt-4 lg:min-h-[1080px] lg:grid-cols-[minmax(300px,420px)_minmax(0,600px)] lg:justify-center lg:items-start lg:gap-16 lg:px-12 lg:pb-56 lg:pt-24">
-        <section className="relative hidden min-h-[580px] flex-col justify-center lg:flex lg:pt-12">
-          <svg aria-hidden="true" className="absolute left-0 top-2 h-20 w-28 text-ink" viewBox="0 0 112 80" fill="none">
+      <main className="relative z-10 mx-auto grid max-w-7xl gap-10 px-6 pb-16 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)] lg:items-start lg:gap-10 lg:px-12 lg:pb-56 lg:pt-10">
+        <section className="relative hidden flex-col lg:flex lg:pt-14">
+          <svg aria-hidden="true" className="absolute left-0 -top-8 h-20 w-28 text-ink" viewBox="0 0 112 80" fill="none">
             <path d="M11 45L34 50M15 29L34 40M37 16L43 37" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
             <path d="M84 8L88 22L100 27L88 32L84 47L80 32L68 27L80 22L84 8Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
           </svg>
-          <h1 className="mt-16 max-w-md text-6xl font-bold leading-[1.15] tracking-tight xl:text-7xl">
+          <h1 className="max-w-md font-handwritten text-5xl font-bold leading-[1.15] tracking-tight xl:text-6xl">
             Let&apos;s create<br />your space. <span className="text-pink-400">♡</span>
           </h1>
           <div className="mt-5 h-1 w-48 -rotate-3 rounded-full bg-[#e7aa9f]" />
@@ -92,15 +89,15 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
           </div>
         </section>
 
-        <section className="relative mx-auto w-full max-w-[560px] lg:mt-8 lg:justify-self-end">
+        <section className="relative mx-auto w-full max-w-[560px] lg:justify-self-end">
           <div aria-hidden="true" className="absolute -top-3 left-1/2 z-20 h-7 w-28 -translate-x-1/2 -rotate-2 border border-white/50 bg-sticky-green/70 shadow-sm [background-image:repeating-linear-gradient(0deg,transparent_0_5px,rgba(92,115,78,0.18)_5px_6px)]" />
           <div aria-hidden="true" className="absolute -left-12 top-0 hidden h-12 w-10 text-ink lg:block">
             <Sparkles className="h-10 w-10" strokeWidth={1.7} />
           </div>
 
-          <div className="min-h-[900px] rounded-[2rem] border border-paper-border bg-paper-card/95 px-7 py-12 shadow-[0_18px_50px_rgba(83,65,45,0.16)] sm:px-12 sm:py-14 lg:h-[900px]">
+          <div className="rounded-[2rem] border border-paper-border bg-paper-card/95 px-7 py-12 shadow-[0_18px_50px_rgba(83,65,45,0.16)] sm:px-12 sm:py-14">
             <div className="mb-8">
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              <h2 className="font-handwritten text-4xl font-bold tracking-tight">
                 Create your account <span className="text-pink-400">♡</span>
               </h2>
               <p className="mt-3 text-xl text-ink-muted">Join and start organising your boards.</p>
@@ -111,7 +108,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
                 <span>Username</span>
                 <span className="relative block">
                   <UserRound className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
-                  <Input ref={usernameRef} id="username" type="text" placeholder="Choose a username" required className="h-16 rounded-xl border-paper-border bg-paper px-14 text-lg text-ink placeholder:text-ink-muted/55 focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <Input ref={usernameRef} id="username" type="text" placeholder="Choose a username" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
                 </span>
               </label>
 
@@ -119,7 +116,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
                 <span>Email</span>
                 <span className="relative block">
                   <Mail className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
-                  <Input ref={emailRef} id="email" type="email" placeholder="Enter your email" required className="h-16 rounded-xl border-paper-border bg-paper px-14 text-lg text-ink placeholder:text-ink-muted/55 focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <Input ref={emailRef} id="email" type="email" placeholder="Enter your email" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
                 </span>
               </label>
 
@@ -127,7 +124,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
                 <span>Password</span>
                 <span className="relative block">
                   <LockKeyhole className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
-                  <Input ref={passwordRef} id="password" type="password" placeholder="Create a password" required className="h-16 rounded-xl border-paper-border bg-paper px-14 pr-14 text-lg text-ink placeholder:text-ink-muted/55 focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <Input ref={passwordRef} id="password" type="password" placeholder="Create a password" required className="h-16 rounded-xl border-paper-border bg-paper px-14 pr-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
                   <Eye className="pointer-events-none absolute right-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
                 </span>
               </label>
