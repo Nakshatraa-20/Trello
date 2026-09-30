@@ -5,9 +5,9 @@ import crypto from "crypto"
 
 
 const router = express.Router();
-router.use(authMiddleware)
 
-router.post("/:orgId/invite",async(req,res)=>
+
+router.post("/:orgId/invite",authMiddleware,async(req,res)=>
     {
       const orgId= Number(req.params.orgId)
       const inviterId= (req as any).userId
@@ -110,7 +110,7 @@ router.post("/:orgId/invite",async(req,res)=>
        }
     })
     
-router.get("/me",async(req,res)=>
+router.get("/me",authMiddleware,async(req,res)=>
 {
     const userId= (req as any).userId
     try{
@@ -170,9 +170,21 @@ router.get("/:token", async(req,res)=>
               message: "Invitation not found",
             });
           }
+        if(invitation.status !== "pending"){
+            return res.status(400).json({
+                message:"invitation is no longer valid"
+            })
+        }
+
+        if(invitation.expiresAt < new Date()){
+            return res.status(400).json({
+                message:"invitation has expired"
+            })
+        }
           return res.status(200).json({
             invitation,
           })
+
         } catch (error) {
             console.error(error);
         
@@ -181,5 +193,103 @@ router.get("/:token", async(req,res)=>
             });
           }
         });
+
+router.post("/:token/accept",authMiddleware,async(req,res)=>{
+    const token= req.params.token as string
+    const userId= (req as any).userId
+    
+    try{
+        const invitation= await prisma.invitation.findUnique({
+            where:{
+                token
+            }
+        })
+
+        if(!invitation){
+            return res.status(404).json({
+                message:"invitation not found"
+            })
+        }
+
+        if(invitation.status!=="pending"){
+            return res.status(404).json({
+                message:"Invitation has expired"
+            })
+        }
+
+        if(invitation.expiresAt < new Date()){
+            return res.status(400).json({
+                message:"invitation has expired"
+            })
+        }
+        
+
+        if(invitation.userId !==null){
+            if(invitation.userId !== userId) 
+            {
+                return res.status(404).json({
+                    message:"this invitation does not belong to you"
+                })
+            }
+        }
+        if(invitation.userId== null){
+            const user= await prisma.user.findUnique({
+                where:{
+                    id: userId
+                }
+            })
+            if(!user || user.email !== invitation.email){
+               return res.status(404).json({
+                message:"this invitation does not belong to you"
+               })
+            }
+        }
+
+        const existingMembership= await prisma.membership.findFirst({
+            where:{
+                userId,
+                orgId: invitation.orgId
+               
+                
+            }
+    })
+    if(existingMembership){
+        return res.status(404).json({
+            message:"you are already a member of this workspace"
+        })
+
+    }
+    
+    const [membership]= await prisma.$transaction([
+        prisma.membership.create({
+            data:{
+              userId,
+              orgId: invitation.orgId,
+              role:"member"
+            }
+        }),
+        prisma.invitation.update({
+            where:{
+                id: invitation.id,
+            },
+            data:{
+                status:"accepted"
+            }
+        })
+
+    ])
+
+}
+catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Failed to accept invitation",
+    });
+  }
+})
+    
+
+
     
 export default router
