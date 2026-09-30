@@ -40,6 +40,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
       className={`relative min-h-screen overflow-hidden bg-paper font-handwritten text-ink ${className}`}
       {...props}
     >
+      <div aria-hidden="true" className="pointer-events-none absolute -left-32 -top-40 h-[440px] w-[440px] rounded-full bg-sticky-pink/35 blur-xl" />
       <div aria-hidden="true" className="absolute -right-32 top-36 h-96 w-96 rounded-full bg-sticky-pink/50 blur-sm" />
       <div aria-hidden="true" className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-sticky-green/45 blur-sm" />
       <div aria-hidden="true" className="absolute bottom-0 right-0 h-80 w-80 rounded-tl-[12rem] bg-sticky-green/35" />
@@ -90,7 +91,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
         </section>
 
         <section className="relative mx-auto w-full max-w-[560px] lg:justify-self-end">
-          <div aria-hidden="true" className="absolute -top-3 left-1/2 z-20 h-7 w-28 -translate-x-1/2 -rotate-2 border border-white/50 bg-sticky-green/70 shadow-sm [background-image:repeating-linear-gradient(0deg,transparent_0_5px,rgba(92,115,78,0.18)_5px_6px)]" />
+          <div aria-hidden="true" className="absolute -top-5 left-1/2 z-20 h-11 w-40 -translate-x-1/2 rotate-6 border border-paper-card/60 opacity-90 shadow-sm" style={{ backgroundColor: "#fff5ed", backgroundImage: "repeating-linear-gradient(0deg, transparent 0 8px, rgba(207,119,124,.38) 8px 16px), repeating-linear-gradient(90deg, transparent 0 8px, rgba(207,119,124,.38) 8px 16px)" }} />
           <div aria-hidden="true" className="absolute -left-12 top-0 hidden h-12 w-10 text-ink lg:block">
             <Sparkles className="h-10 w-10" strokeWidth={1.7} />
           </div>
