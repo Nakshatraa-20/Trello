@@ -110,6 +110,40 @@ router.post("/:orgId/invite",async(req,res)=>
        }
     })
     
+router.get("/me",async(req,res)=>
+{
+    const userId= (req as any).userId
+    try{
+        const invitations= await prisma.invitation.findMany({
+            where:{
+                userId,
+                status:"pending"
+            },
+            include:{
+                org: true,
+            
+            invitedBy:{
+                select:{
+                    id:true,
+                    username:true
 
+                }
+            }
+            }
+        })
+    
+        return res.status(200).json({
+            invitations,
+        })
+    }
+    catch (error) {
+        console.error(error);
+    
+        return res.status(500).json({
+          message: "Failed to fetch invitations",
+        });
+}
+}
+)
 
 export default router
