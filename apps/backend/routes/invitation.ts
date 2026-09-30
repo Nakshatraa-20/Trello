@@ -146,4 +146,40 @@ router.get("/me",async(req,res)=>
 }
 )
 
+router.get("/:token", async(req,res)=>
+{
+    const token= req.params.token
+    try{
+        const invitation= await prisma.invitation.findUnique({
+            where:{
+                token,
+            },
+            include:{
+                org:true,
+                invitedBy:{
+                    select:{
+                        id:true,
+                        username:true,
+                    }
+                }
+            }
+
+        })
+        if (!invitation) {
+            return res.status(404).json({
+              message: "Invitation not found",
+            });
+          }
+          return res.status(200).json({
+            invitation,
+          })
+        } catch (error) {
+            console.error(error);
+        
+            return res.status(500).json({
+              message: "Failed to fetch invitation",
+            });
+          }
+        });
+    
 export default router
