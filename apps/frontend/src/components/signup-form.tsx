@@ -69,11 +69,11 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
             Let&apos;s create<br />your space. <span className="text-pink-400">♡</span>
           </h1>
           <div className="mt-5 h-1 w-48 -rotate-3 rounded-full bg-[#e7aa9f]" />
-          <p className="mt-10 max-w-sm text-2xl leading-relaxed text-ink-muted">
+          <p className="mt-10 max-w-md text-3xl leading-relaxed text-ink-muted">
             A space for your ideas, projects, and everything in between.
           </p>
 
-          <div className="mt-12 space-y-6 text-xl text-ink-muted">
+          <div className="mt-12 space-y-6 text-2xl leading-relaxed text-ink-muted">
             <div className="flex items-center gap-5">
               <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sticky-pink text-ink"><Star className="h-7 w-7" /></span>
               <span>Keep track<br />of what matters</span>
