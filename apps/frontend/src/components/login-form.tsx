@@ -73,7 +73,7 @@ export function LoginForm({ className, ...props }: ComponentProps<"div">) {
         </section>
 
         <section aria-labelledby="signin-title" className="relative mx-auto w-full max-w-[560px]">
-          <div aria-hidden="true" className="absolute -top-5 left-1/2 z-20 h-11 w-40 -translate-x-1/2 rotate-6 border border-paper-card/60 opacity-90 shadow-sm" style={{ backgroundColor: "#fff5ed", backgroundImage: "repeating-linear-gradient(0deg, transparent 0 8px, rgba(207,119,124,.38) 8px 16px), repeating-linear-gradient(90deg, transparent 0 8px, rgba(207,119,124,.38) 8px 16px)" }} />
+          <div aria-hidden="true" className="absolute -top-5 left-1/2 z-20 h-11 w-40 -translate-x-1/2 -rotate-6 border border-paper-card/60 opacity-90 shadow-sm" style={{ backgroundColor: "#fff5ed", backgroundImage: "repeating-linear-gradient(0deg, transparent 0 8px, rgba(207,119,124,.38) 8px 16px), repeating-linear-gradient(90deg, transparent 0 8px, rgba(207,119,124,.38) 8px 16px)" }} />
           <svg aria-hidden="true" className="absolute -left-14 top-3 hidden h-14 w-12 text-ink lg:block" viewBox="0 0 48 56" fill="none">
             <path d="M7 43L28 42M12 20L30 31M29 5L37 23" stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" />
           </svg>
