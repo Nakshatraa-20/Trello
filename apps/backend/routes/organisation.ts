@@ -137,6 +137,11 @@ router.post("/:orgId/invite",async(req,res)=>
       expiresAt
     }
    })
+   if(invitation){
+    return res.status(403).json({
+      message:"Invitation created successfully"
+    })
+   }
 })
 
 

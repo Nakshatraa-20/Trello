@@ -8,6 +8,7 @@ import commentRoutes from "./comment";
 import userRoutes from "./user";
 import membershipRoutes from "./membership";
 import organisationRoutes from "./organisation";
+import invitationRoutes from "./invitation"
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/comment", commentRoutes);
 router.use("/user", userRoutes);
 router.use("/membership", membershipRoutes);
 router.use("/organisation", organisationRoutes);
+router.use("/invitation",invitationRoutes)
 
 export default router;
