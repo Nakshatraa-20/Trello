@@ -289,6 +289,82 @@ catch (error) {
   }
 })
     
+router.post("/:token/decline", authMiddleware, async (req, res) => {
+    const token = req.params.token as string;
+    const userId = (req as any).userId;
+  
+    try {
+      const invitation = await prisma.invitation.findUnique({
+        where: {
+          token,
+        },
+      });
+  
+      if (!invitation) {
+        return res.status(404).json({
+          message: "Invitation not found",
+        });
+      }
+  
+      if (invitation.status !== "pending") {
+        return res.status(400).json({
+          message: "Invitation is no longer valid",
+        });
+      }
+  
+      if (invitation.expiresAt < new Date()) {
+        return res.status(400).json({
+          message: "Invitation has expired",
+        });
+      }
+  
+      if (invitation.userId !== null) {
+        if (invitation.userId !== userId) {
+          return res.status(403).json({
+            message: "This invitation does not belong to you",
+          });
+        }
+      }
+  
+      if (invitation.userId === null) {
+        const user = await prisma.user.findUnique({
+          where: {
+            id: userId,
+          },
+        });
+  
+        if (
+          !user ||
+          !user.email ||
+          !invitation.email ||
+          user.email.toLowerCase() !== invitation.email.toLowerCase()
+        ) {
+          return res.status(403).json({
+            message: "This invitation does not belong to you",
+          });
+        }
+      }
+  
+      await prisma.invitation.update({
+        where: {
+          id: invitation.id,
+        },
+        data: {
+          status: "declined",
+        },
+      });
+  
+      return res.status(200).json({
+        message: "Invitation declined successfully",
+      });
+    } catch (error) {
+      console.error(error);
+  
+      return res.status(500).json({
+        message: "Failed to decline invitation",
+      });
+    }
+  })
 
 
     
