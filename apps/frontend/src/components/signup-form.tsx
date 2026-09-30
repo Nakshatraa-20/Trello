@@ -1,93 +1,152 @@
-import { Button } from "@/components/ui/button"
-import {useRef} from "react"
-import {useNavigate} from "react-router-dom"
-import {Link} from "react-router-dom" 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+import { type ComponentProps, type FormEvent, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, Eye, Heart, LockKeyhole, Mail, Sparkles, Star, UserRound, UsersRound } from "lucide-react";
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-  const usernameRef= useRef<HTMLInputElement>(null)
-  const passwordRef= useRef<HTMLInputElement>(null)
-  const navigate= useNavigate()
+import signupDeskScene from "@/assets/signup-desk-scene.png";
+import { Input } from "@/components/ui/input";
 
-  async function handleSubmit(e:React.FormEvent){
-    e.preventDefault()
-    const username= usernameRef.current?.value
-    const password= passwordRef.current?.value
-    const response= await fetch("http://localhost:3001/user/signup", {
+export function SignupForm({ className = "", ...props }: ComponentProps<"div">) {
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+
+    const response = await fetch("http://localhost:3001/user/signup", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username,
-        password
-      })
+        username: usernameRef.current?.value,
+        email: emailRef.current?.value,
+        password: passwordRef.current?.value,
+      }),
+    });
 
-    })
-    const data= await response.json()
-    if(!response.ok){
-      console.log(data.message)
-      return 
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.message ?? "Unable to create your account.");
+      return;
     }
-    navigate("/login")
+
+    navigate("/login");
   }
+
   return (
-    <div className="grid min-h-screen w-full place-items-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 text-white">
-    <Card {...props} className="min-h-[460px] w-full max-w-[430px] shrink-0 border border-white/10 bg-slate-900/80 py-0 text-white shadow-2xl shadow-indigo-950/40 backdrop-blur-xl">
-      <CardHeader className="gap-3 border-b border-white/10 px-8 py-8">
-        <p className="text-xs font-semibold tracking-[0.2em] text-indigo-300 uppercase">
-          Get started
+    <div
+      className={`relative min-h-screen overflow-hidden bg-paper font-handwritten text-ink ${className}`}
+      {...props}
+    >
+      <div aria-hidden="true" className="absolute -right-32 top-36 h-96 w-96 rounded-full bg-sticky-pink/50 blur-sm" />
+      <div aria-hidden="true" className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-sticky-green/45 blur-sm" />
+      <div aria-hidden="true" className="absolute bottom-0 right-0 h-80 w-80 rounded-tl-[12rem] bg-sticky-green/35" />
+      <img
+        aria-hidden="true"
+        src={signupDeskScene}
+        alt=""
+        className="pointer-events-none absolute bottom-0 left-0 z-0 hidden w-full min-w-[900px] lg:block"
+      />
+
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-8 lg:px-12">
+        <Link to="/" className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          nakshatraa <span className="text-pink-400">♡</span>
+        </Link>
+        <p className="text-base text-ink-muted sm:text-xl">
+          Already have an account?{" "}
+          <Link to="/login" className="ml-1 border-b-2 border-pink-400 pb-1 font-bold text-pink-500">
+            Sign in
+          </Link>
         </p>
-        <CardTitle className="text-3xl font-semibold tracking-tight text-white">Create an account</CardTitle>
-        <CardDescription className="text-slate-400">
-          Enter your information below to create your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="px-8 py-7">
-        <form onSubmit={handleSubmit}>
-          <FieldGroup className="gap-5">
-            <Field>
-              <FieldLabel htmlFor="username">Username</FieldLabel>
-              <Input className="h-10 border-white/15 bg-white/5 text-white placeholder:text-slate-500 focus-visible:border-indigo-400 focus-visible:ring-indigo-400/30" ref={usernameRef}id="username" type="text" placeholder="Enter your username" required />
-            </Field>
-            
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input className="h-10 border-white/15 bg-white/5 text-white placeholder:text-slate-500 focus-visible:border-indigo-400 focus-visible:ring-indigo-400/30" ref={passwordRef} id="password" type="password" required />
-              <FieldDescription className="text-slate-400">
-                Must be at least 8 characters long.
-              </FieldDescription>
-            </Field>
-           
-            <FieldGroup>
-              <Field>
-                <Button className="h-10 w-full bg-indigo-500 text-white hover:bg-indigo-400" type="submit">Create Account</Button>
-                <Button className="h-10 w-full border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white" variant="outline" type="button">
-                  Sign up with Google
-                </Button>
-                <FieldDescription className="px-6 pt-2 text-center text-slate-400">
-                  Already have an account? <Link to ="/login" className="font-medium text-indigo-300 hover:text-indigo-200" >Sign in</Link>
-                  
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
+      </header>
+
+      <main className="relative z-10 mx-auto grid max-w-7xl gap-10 px-6 pb-16 pt-4 lg:min-h-[1080px] lg:grid-cols-[minmax(300px,420px)_minmax(0,600px)] lg:justify-center lg:items-start lg:gap-16 lg:px-12 lg:pb-56 lg:pt-24">
+        <section className="relative hidden min-h-[580px] flex-col justify-center lg:flex lg:pt-12">
+          <svg aria-hidden="true" className="absolute left-0 top-2 h-20 w-28 text-ink" viewBox="0 0 112 80" fill="none">
+            <path d="M11 45L34 50M15 29L34 40M37 16L43 37" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            <path d="M84 8L88 22L100 27L88 32L84 47L80 32L68 27L80 22L84 8Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+          </svg>
+          <h1 className="mt-16 max-w-md text-6xl font-bold leading-[1.15] tracking-tight xl:text-7xl">
+            Let&apos;s create<br />your space. <span className="text-pink-400">♡</span>
+          </h1>
+          <div className="mt-5 h-1 w-48 -rotate-3 rounded-full bg-[#e7aa9f]" />
+          <p className="mt-10 max-w-sm text-2xl leading-relaxed text-ink-muted">
+            A space for your ideas, projects, and everything in between.
+          </p>
+
+          <div className="mt-12 space-y-6 text-xl text-ink-muted">
+            <div className="flex items-center gap-5">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sticky-pink text-ink"><Star className="h-7 w-7" /></span>
+              <span>Keep track<br />of what matters</span>
+            </div>
+            <div className="flex items-center gap-5">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sticky-green text-ink"><UsersRound className="h-7 w-7" /></span>
+              <span>Collaborate<br />with your people</span>
+            </div>
+            <div className="flex items-center gap-5">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sticky-yellow text-ink"><Heart className="h-7 w-7" /></span>
+              <span>Turn ideas<br />into real progress</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative mx-auto w-full max-w-[560px] lg:mt-8 lg:justify-self-end">
+          <div aria-hidden="true" className="absolute -top-3 left-1/2 z-20 h-7 w-28 -translate-x-1/2 -rotate-2 border border-white/50 bg-sticky-green/70 shadow-sm [background-image:repeating-linear-gradient(0deg,transparent_0_5px,rgba(92,115,78,0.18)_5px_6px)]" />
+          <div aria-hidden="true" className="absolute -left-12 top-0 hidden h-12 w-10 text-ink lg:block">
+            <Sparkles className="h-10 w-10" strokeWidth={1.7} />
+          </div>
+
+          <div className="min-h-[900px] rounded-[2rem] border border-paper-border bg-paper-card/95 px-7 py-12 shadow-[0_18px_50px_rgba(83,65,45,0.16)] sm:px-12 sm:py-14 lg:h-[900px]">
+            <div className="mb-8">
+              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
+                Create your account <span className="text-pink-400">♡</span>
+              </h2>
+              <p className="mt-3 text-xl text-ink-muted">Join and start organising your boards.</p>
+            </div>
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <label className="block space-y-2 text-xl font-bold">
+                <span>Username</span>
+                <span className="relative block">
+                  <UserRound className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
+                  <Input ref={usernameRef} id="username" type="text" placeholder="Choose a username" required className="h-16 rounded-xl border-paper-border bg-paper px-14 text-lg text-ink placeholder:text-ink-muted/55 focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                </span>
+              </label>
+
+              <label className="block space-y-2 text-xl font-bold">
+                <span>Email</span>
+                <span className="relative block">
+                  <Mail className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
+                  <Input ref={emailRef} id="email" type="email" placeholder="Enter your email" required className="h-16 rounded-xl border-paper-border bg-paper px-14 text-lg text-ink placeholder:text-ink-muted/55 focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                </span>
+              </label>
+
+              <label className="block space-y-2 text-xl font-bold">
+                <span>Password</span>
+                <span className="relative block">
+                  <LockKeyhole className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
+                  <Input ref={passwordRef} id="password" type="password" placeholder="Create a password" required className="h-16 rounded-xl border-paper-border bg-paper px-14 pr-14 text-lg text-ink placeholder:text-ink-muted/55 focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <Eye className="pointer-events-none absolute right-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
+                </span>
+              </label>
+
+              {error && <p className="rounded-lg bg-sticky-pink/45 px-4 py-3 text-center text-base text-ink">{error}</p>}
+
+              <button type="submit" className="flex h-16 w-full items-center justify-center gap-3 rounded-xl bg-[#c96f6a] text-2xl font-bold text-paper-card shadow-md transition hover:-translate-y-0.5 hover:bg-[#b85c5e]">
+                Create account <ArrowRight className="h-7 w-7" />
+              </button>
+            </form>
+
+            <p className="mt-8 text-center text-lg leading-relaxed text-ink-muted">
+              By creating an account, you agree to our<br className="hidden sm:block" />{" "}
+              <a href="#" className="underline decoration-ink-muted underline-offset-4">Terms of Service</a>{" "}
+              and <a href="#" className="underline decoration-ink-muted underline-offset-4">Privacy Policy</a>.
+            </p>
+          </div>
+        </section>
+      </main>
     </div>
-  )
+  );
 }

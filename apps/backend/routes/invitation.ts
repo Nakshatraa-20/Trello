@@ -104,10 +104,12 @@ router.post("/:orgId/invite",authMiddleware,async(req,res)=>
         }
        })
        if(invitation){
-        return res.status(403).json({
-          message:"Invitation created successfully"
+        return res.status(201).json({
+          message:"Invitation created successfully",
+          invitation
         })
        }
+       
     })
     
 router.get("/me",authMiddleware,async(req,res)=>
