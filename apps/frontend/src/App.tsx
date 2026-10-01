@@ -21,7 +21,7 @@ function App(){
       <Route path= "/login"   element={<LoginForm />}  />
       <Route path= "/board/:boardId"   element={<BoardPage />} />
       <Route path= "/dashboard"  element={<Dashboard />} />
-      <Route path="/workspaceBoards" element={<WorkspacePage />} />
+      <Route path="/workspace/:orgId" element={<WorkspacePage />} />
 
     </Routes>
       </BrowserRouter>

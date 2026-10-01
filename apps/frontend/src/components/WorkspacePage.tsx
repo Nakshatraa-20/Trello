@@ -4,7 +4,7 @@ import InviteMemberModal from "./InviteMemberModal"
 
 
 export default function WorkspacePage(){
-    const [inviteOpen, setInviteOpen]= useState(false)
+  const [inviteOpen, setInviteOpen]= useState(false)
     const {orgId}= useParams()
 
     return (
@@ -13,12 +13,11 @@ export default function WorkspacePage(){
         Invite
       </button>
 
-      {inviteOpen && (
-        <InviteMemberModal
-          orgId={1}
-          onClose={() => setInviteOpen(false)}
-        />
-      )}
+      {inviteOpen && 
+          <InviteMemberModal
+          onClose={()=> setInviteOpen(false)}
+          orgId= {Number(orgId)} />
+        }
     </div>
     )
 }

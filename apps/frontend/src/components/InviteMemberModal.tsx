@@ -1,23 +1,62 @@
-type InviteMemberModalProps={
+import {useRef} from "react"
+type Props={
     orgId: number
-    orgName: String
     onClose: ()=> void
 }
+export default function InviteMemberModal({onClose, orgId}:Props){
+    const inviteRef= useRef<HTMLInputElement>(null)
+    const handleInvite=async () =>{
+        const value= inviteRef.current?.value.trim()
+        if(!value){
+            return
+        }
+        const body= value.includes("@")?{email:value}:{username:value}
+        console.log(body)
+        const token= localStorage.getItem("token")
+        if(!token){
+            alert("please sign in again")
+            return
+        }
+        const response= await fetch(`http://localhost:3001/invitation/${orgId}/invite`,{
+            method:"POST",
+            headers:{
+            "Content-Type": "application/json",
+           Authorization: `Bearer ${token}`,
+            },
+            body:JSON.stringify(body)
+        })
 
-export default function InviteMemberModal({
-    orgId,
-    orgName,
-    onClose
-}: InviteMemberModalProps) {
+        const data= await response.json()
+        if(!response.ok){
+            alert(data.message)
+        }
+        if(inviteRef.current){
+            inviteRef.current.value=""
+        }
+        
+    }
+    
     return (
         <div>
-        <h2>Invite your people ♡</h2>
-  
-        <p>
-          Add someone to {orgName} by username or email.
-        </p>
-  
-        <button onClick={onClose}>×</button>
-      </div>
+            <h2>Invite member </h2>
+            <input 
+            ref={inviteRef}
+            type="text"
+            placeholder="username or email" />
+            <button onClick={handleInvite}>
+                Send Invite
+            </button>
+            <button onClick={onClose}>
+        Close
+      </button>
+            
+
+        </div>
     )
 }
+
+
+
+
+
+
