@@ -7,6 +7,7 @@ import Dashboard from "./components/Dashboard"
 import { SignupForm } from "./components/signup-form";
 import {LoginForm} from "./components/login-form"
 import BoardPage from "./components/BoardPage"
+import WorkspacePage from "./components/WorkspacePage"
 
 
 import {BrowserRouter, Routes, Route} from "react-router-dom"
@@ -20,6 +21,7 @@ function App(){
       <Route path= "/login"   element={<LoginForm />}  />
       <Route path= "/board/:boardId"   element={<BoardPage />} />
       <Route path= "/dashboard"  element={<Dashboard />} />
+      <Route path="/workspaceBoards" element={<WorkspacePage />} />
 
     </Routes>
       </BrowserRouter>
