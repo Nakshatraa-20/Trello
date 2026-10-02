@@ -58,6 +58,9 @@ export default function Invitations() {
     }
 
     alert("Workspace joined successfully!");
+    setInvitations((prev) =>
+        prev.filter((invitation) => invitation.token !== invitationToken)
+      );
   };
 
   const handleDecline = async (invitationToken: string) => {
@@ -81,6 +84,9 @@ export default function Invitations() {
         return
     }
     alert("invitation declined")
+    setInvitations((prev) =>
+        prev.filter((invitation) => invitation.token !== invitationToken)
+      );
   };
 
   return (
@@ -95,6 +101,7 @@ export default function Invitations() {
             {invitation.invitedBy.username} invited you to join this workspace.
           </p>
           <button onClick={() => handleAccept(invitation.token)}>Accept</button>
+
           <button onClick={()=>handleDecline(invitation.token)}>Decline</button>
         </div>
       ))}

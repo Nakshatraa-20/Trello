@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Pin } from "lucide-react";
 import Board from "./Board";
-
+import Invitation from "./Invitation"
 interface Board {
   id: number;
   title: string;
@@ -305,6 +305,7 @@ function Dashboard() {
               <p className="mt-1 text-base text-ink-muted">
                 Boards created for your own work.
               </p>
+              < Invitation />
             </div>
           </div>
 
@@ -389,8 +390,9 @@ function Dashboard() {
 
           <div className="mt-6 flex flex-wrap gap-4">
             {memberships.map((membership) => (
-              <div
+              <Link
                 key={membership.org.id}
+                to={`/workspace/${membership.org.id}`}
                 className={`group relative mt-3 flex h-40 w-72 flex-col rounded-md border border-paper-border p-6 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${membership.org.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[membership.org.id % boardColors.length]}`}
               >
                 <CardAttachment id={membership.org.id} />
@@ -401,7 +403,7 @@ function Dashboard() {
                 <p className="mt-auto text-sm font-semibold text-ink-muted">
                   View boards →
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
