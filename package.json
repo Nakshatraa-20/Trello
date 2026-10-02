@@ -10,6 +10,7 @@
     "ws": "bun --env-file=.env apps/websockets/ws.ts"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.2",
     "@types/pg": "^8.20.3",
     "prettier": "^3.7.4",
     "prisma": "^7.9.1",

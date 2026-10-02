@@ -1,3 +1,7 @@
+import type {ServerWebSocket} from "bun"
+
+
+
 interface Issue {
   id: number;
   title: string;
