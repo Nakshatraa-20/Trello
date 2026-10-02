@@ -33,7 +33,9 @@ export default function InviteMemberModal({onClose, orgId}:Props){
         if(inviteRef.current){
             inviteRef.current.value=""
         }
-        
+        alert("Invitation sent successfully")
+        onClose()
+
     }
     
     return (
