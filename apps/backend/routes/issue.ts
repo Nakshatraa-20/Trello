@@ -4,6 +4,42 @@ import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
 router.use(authMiddleware); 
+async function notifyBoard(
+  boardId: number,
+  type:
+    | "issue_created"
+    | "issue_deleted"
+    | "issue_moved"
+    | "issue_updated",
+  payload: Record<string, unknown>,
+) {
+  try {
+    const response = await fetch(
+      "http://localhost:3002/broadcast",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type,
+          room: `board-${boardId}`,
+          payload,
+        }),
+        signal: AbortSignal.timeout(3000),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Board notification failed:",
+        response.status,
+      );
+    }
+  } catch (error) {
+    console.error("Could not reach WebSocket server:", error);
+  }
+}
 
 router.post("/create-issue", async (req, res) => {
   const boardId = Number(req.body.boardId);
@@ -48,8 +84,9 @@ router.post("/create-issue", async (req, res) => {
       sectionId,
     },
   });
-
+  await notifyBoard(issue.boardId,"issue_created",{issue})
   return res.status(201).json({ issue });
+  
 });
 
 router.get("/issues/board/:boardId", async (req, res) => {
@@ -188,46 +225,12 @@ router.delete("/:issueId", async (req, res) => {
     });
   }
 
-  router.get("/issues/section/:sectionId", async (req, res) => {
-    const sectionId = Number(req.params.sectionId);
-    const section = await prisma.section.findUnique({
-      where: { id: sectionId },
-      include: { board: true },
-    });
   
-    if (!section) {
-      return res.status(404).json({ message: "Section not found" });
-    }
-  
-    if (section.board.orgId === null) {
-      if (section.board.userId !== (req as any).userId) {
-        return res.status(403).json({
-          message: "You do not have access to this board",
-        });
-      }
-    } else {
-      const membership = await prisma.membership.findFirst({
-        where: {
-          userId: (req as any).userId,
-          orgId: section.board.orgId,
-        },
-      });
-    
-      if (!membership) {
-        return res.status(403).json({
-          message: "Not a member of this organisation",
-        });
-      }
-    }
-  
-    const issues = await prisma.issue.findMany({ where: { sectionId } });
-    return res.json({ issues });
-  });
 
   await prisma.issue.delete({
     where: { id: issueId },
   });
-
+  await notifyBoard(issue.boardId,"issue_deleted",{issueId})
   return res.status(200).json({
     message: "Issue deleted successfully",
   });
