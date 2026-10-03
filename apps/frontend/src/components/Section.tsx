@@ -17,6 +17,7 @@ interface Issue {
   boardId: number;
   sectionId: number;
   completed: boolean;
+  position: number;
 }
 
 function Section({
@@ -131,6 +132,7 @@ function Section({
       </div>
       {issues
         .filter((issue) => issue.sectionId === section.id)
+        .sort((a, b) => a.position - b.position || a.id - b.id)
         .map((issue) => (
           <div
             key={issue.id}

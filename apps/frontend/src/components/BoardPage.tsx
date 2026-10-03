@@ -8,7 +8,8 @@ interface Issue {
   title: string;
   boardId: number;
   sectionId: number;
-  completed: boolean 
+  completed: boolean;
+  position: number;
 }
 
 interface Section {

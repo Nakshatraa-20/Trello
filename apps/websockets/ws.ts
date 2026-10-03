@@ -8,7 +8,8 @@ interface Issue {
   boardId: number;
   sectionId: number;
   description: string;
-  completed:boolean
+  completed: boolean;
+  position: number;
 }
 interface SocketData{
   room:string
