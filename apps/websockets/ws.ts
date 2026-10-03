@@ -8,8 +8,11 @@ interface Issue {
   boardId: number;
   sectionId: number;
   description: string;
+  completed:boolean
 }
-
+interface SocketData{
+  room:string
+}
 interface BroadcastMessage {
   type:
     | "issue_created"
@@ -26,7 +29,7 @@ interface BroadcastMessage {
 }
 
 interface SocketConnection {
-  socket: ServerWebSocket<unknown>;
+  socket: ServerWebSocket<SocketData>;
   room: string;
 }
 
@@ -106,6 +109,7 @@ const server = Bun.serve({
   },
 
   websocket: {
+    data: {} as SocketData,
     open(socket) {
       const room = socket.data.room as string;
 
