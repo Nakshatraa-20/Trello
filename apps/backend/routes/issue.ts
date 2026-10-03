@@ -41,6 +41,28 @@ async function notifyBoard(
   }
 }
 
+async function retryOnConflict<T>(
+  operation: () => Promise<T>
+): Promise<T> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      const isConflict =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "P2034";
+
+      if (!isConflict || attempt === 2) {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error("Could not complete the database operation.");
+}
+
 router.post("/create-issue", async (req, res) => {
   const boardId = Number(req.body.boardId);
   const sectionId = Number(req.body.sectionId);
@@ -76,14 +98,40 @@ router.post("/create-issue", async (req, res) => {
       });
     }
   } 
-  const issue = await prisma.issue.create({
-    data: {
-      title: req.body.title,
-      description: req.body.description,
-      boardId,
-      sectionId,
-    },
-  });
+  const issue = await retryOnConflict(() =>
+    prisma.$transaction(
+      async (tx) => {
+        // Find the highest position in this section.
+        const lastIssue = await tx.issue.findFirst({
+          where: {
+            sectionId,
+          },
+          orderBy: {
+            position: "desc",
+          },
+          select: {
+            position: true,
+          },
+        });
+  
+        // Empty section starts at 0.
+        const nextPosition = (lastIssue?.position ?? -1) + 1;
+  
+        return tx.issue.create({
+          data: {
+            title: req.body.title,
+            description: req.body.description,
+            boardId,
+            sectionId,
+            position: nextPosition,
+          },
+        });
+      },
+      {
+        isolationLevel: "Serializable",
+      }
+    )
+  );
   await notifyBoard(issue.boardId,"issue_created",{issue})
   return res.status(201).json({ issue });
   
