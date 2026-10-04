@@ -305,6 +305,30 @@ res.json({issue})
 router.patch("/:issueId/move", async(req,res)=> {
   const issueId= Number(req.params.issueId)
   const sectionId= Number(req.body.sectionId)
+  const beforeIssueId: number | null =
+    req.body.beforeIssueId ?? null;
+
+  if (
+    !Number.isSafeInteger(issueId) ||
+    issueId <= 0 ||
+    !Number.isSafeInteger(sectionId) ||
+    sectionId <= 0
+  ) {
+    return res.status(400).json({
+      message: "Issue ID and section ID must be positive integers.",
+    });
+  }
+
+  if (
+    beforeIssueId !== null &&
+    (
+      !Number.isSafeInteger(beforeIssueId) ||
+      beforeIssueId <= 0
+    )
+  ) 
+    return res.status(400).json({
+      message: "beforeIssueId must be a positive integer or null.",
+    });
 
   const issue= await prisma.issue.findUnique({
     where:
