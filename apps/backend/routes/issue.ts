@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "db/client";
 import { authMiddleware } from "../middleware/auth";
+import { getOrderedIssueIds } from "../lib/issue-order";
 
 const router = express.Router();
 router.use(authMiddleware); 
@@ -330,7 +331,7 @@ router.patch("/:issueId/move", async(req,res)=> {
       message: "beforeIssueId must be a positive integer or null.",
     });
 
-  const issue= await prisma.issue.findUnique({
+  /*const issue= await prisma.issue.findUnique({
     where:
     {
       id:issueId
@@ -368,7 +369,193 @@ router.patch("/:issueId/move", async(req,res)=> {
               message: "Issue moved successfully",
               issue: updateIssue,
             });
-          });
+          }); */
+          try {
+            const result = await retryOnConflict(() =>
+              prisma.$transaction(
+                async (tx) => {
+                  // 1. Read the issue and check access to its board.
+                  const issue = await tx.issue.findUnique({
+                    where: { id: issueId },
+                    include: { board: true },
+                  });
+        
+                  if (!issue) {
+                    return {
+                      status: 404 as const,
+                      message: "Issue not found",
+                    };
+                  }
+        
+                  const { board, ...movingIssue } = issue;
+                  const userId = (req as any).userId;
+        
+                  if (board.orgId === null) {
+                    if (board.userId !== userId) {
+                      return {
+                        status: 403 as const,
+                        message: "You do not have access to this board",
+                      };
+                    }
+                  } else {
+                    const membership = await tx.membership.findFirst({
+                      where: { userId, orgId: board.orgId },
+                    });
+        
+                    if (!membership) {
+                      return {
+                        status: 403 as const,
+                        message: "Not a member of this organisation",
+                      };
+                    }
+                  }
+        
+                  // 2. Check the destination section.
+                  const destination = await tx.section.findUnique({
+                    where: { id: sectionId },
+                  });
+        
+                  if (!destination || destination.boardId !== issue.boardId) {
+                    return {
+                      status: 400 as const,
+                      message: "Destination section must belong to this board",
+                    };
+                  }
+        
+                  // Dropping an issue onto itself changes nothing.
+                  if (beforeIssueId === issueId) {
+                    if (sectionId !== issue.sectionId) {
+                      return {
+                        status: 400 as const,
+                        message: "Cannot insert an issue before itself in another section",
+                      };
+                    }
+        
+                    return {
+                      status: 200 as const,
+                      issues: [movingIssue],
+                    };
+                  }
+        
+                  // 3. Read the issues from both affected sections.
+                  const affectedSectionIds = [
+                    ...new Set([issue.sectionId, sectionId]),
+                  ];
+        
+                  const affectedIssues = await tx.issue.findMany({
+                    where: {
+                      boardId: issue.boardId,
+                      sectionId: { in: affectedSectionIds },
+                    },
+                    orderBy: [
+                      { position: "asc" },
+                      { id: "asc" },
+                    ],
+                  });
+        
+                  const destinationIssues = affectedIssues.filter(
+                    (item) => item.sectionId === sectionId,
+                  );
+        
+                  // The target may have moved since the drag started.
+                  if (
+                    beforeIssueId !== null &&
+                    !destinationIssues.some(
+                      (item) => item.id === beforeIssueId,
+                    )
+                  ) {
+                    return {
+                      status: 409 as const,
+                      message: "The target issue moved. Refresh and try again.",
+                    };
+                  }
+        
+                  // 4. Calculate the destination's new order.
+                  const destinationIds = getOrderedIssueIds(
+                    destinationIssues,
+                    issueId,
+                    beforeIssueId,
+                  );
+        
+                  // 5. Save each issue's array index as its position.
+                  for (const [position, id] of destinationIds.entries()) {
+                    await tx.issue.update({
+                      where: { id },
+                      data: {
+                        sectionId,
+                        position,
+                      },
+                    });
+                  }
+        
+                  // 6. Close the gap in the old section for cross-section moves.
+                  if (issue.sectionId !== sectionId) {
+                    const remainingSourceIssues = affectedIssues.filter(
+                      (item) =>
+                        item.sectionId === issue.sectionId &&
+                        item.id !== issueId,
+                    );
+        
+                    for (
+                      const [position, item]
+                      of remainingSourceIssues.entries()
+                    ) {
+                      await tx.issue.update({
+                        where: { id: item.id },
+                        data: { position },
+                      });
+                    }
+                  }
+        
+                  // 7. Return the saved rows from both sections.
+                  const updatedIssues = await tx.issue.findMany({
+                    where: {
+                      boardId: issue.boardId,
+                      sectionId: { in: affectedSectionIds },
+                    },
+                    orderBy: [
+                      { sectionId: "asc" },
+                      { position: "asc" },
+                      { id: "asc" },
+                    ],
+                  });
+        
+                  return {
+                    status: 200 as const,
+                    issues: updatedIssues,
+                  };
+                },
+                { isolationLevel: "Serializable" },
+              ),
+            );
+        
+            if (result.status !== 200) {
+              return res.status(result.status).json({
+                message: result.message,
+              });
+            }
+        
+            return res.status(200).json({
+              message: "Issue moved successfully",
+              issue: result.issues.find((item) => item.id === issueId),
+              issues: result.issues,
+            });
+          } catch (error) {
+            console.error("Could not move issue:", error);
+        
+            const isConflict =
+              typeof error === "object" &&
+              error !== null &&
+              "code" in error &&
+              error.code === "P2034";
+        
+            return res.status(isConflict ? 409 : 500).json({
+              message: isConflict
+                ? "The board changed during the move. Please try again."
+                : "Could not move the issue.",
+            });
+          }
+        });         
   
 
 export default router;
