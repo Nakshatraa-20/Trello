@@ -1,5 +1,5 @@
-import { useState, type RefObject } from "react";
-import Section from "./Section";
+import { useRef, useState, type RefObject } from "react";
+import Section, { type DropTarget } from "./Section";
 
 interface SectionData {
   id: number;
@@ -34,9 +34,76 @@ function Board({
   issues,
   createIssue,
   setIssues,
-  deleteIssue,
 }: BoardProps) {
   const [showSectionInput, setShowSectionInput] = useState(false);
+  const [draggedIssueId, setDraggedIssueId] = useState<number | null>(null);
+  const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const moveInFlight = useRef(false);
+
+  function updateDropTarget(target: DropTarget | null) {
+    setDropTarget((previous) =>
+      previous?.sectionId === target?.sectionId &&
+      previous?.beforeIssueId === target?.beforeIssueId
+        ? previous
+        : target,
+    );
+  }
+
+  function endDrag() {
+    setDraggedIssueId(null);
+    setDropTarget(null);
+  }
+
+  async function moveIssue(
+    issueId: number,
+    sectionId: number,
+    beforeIssueId: number | null,
+  ) {
+    endDrag();
+    if (moveInFlight.current || !issues.some((issue) => issue.id === issueId)) {
+      return;
+    }
+
+    moveInFlight.current = true;
+    setIsMoving(true);
+    setMoveError(null);
+
+    try {
+      const response = await fetch(`http://localhost:3001/issue/${issueId}/move`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ sectionId, beforeIssueId }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message ?? "Could not move the task. Please try again.");
+      }
+      if (!Array.isArray(data.issues)) {
+        throw new Error("The server did not return the saved order. Please refresh the board.");
+      }
+
+      const updatedById = new Map<number, Issue>(
+        data.issues.map((issue: Issue) => [issue.id, issue]),
+      );
+      setIssues((previous) => previous.map((issue) => {
+        const updated = updatedById.get(issue.id);
+        // A move must not overwrite a checkbox changed while the request ran.
+        return updated
+          ? { ...issue, sectionId: updated.sectionId, position: updated.position }
+          : issue;
+      }));
+    } catch (error) {
+      setMoveError(error instanceof Error ? error.message : "Could not move the task.");
+    } finally {
+      moveInFlight.current = false;
+      setIsMoving(false);
+    }
+  }
 
   function handleCreateSection() {
     if (!newSectionTitle.current?.value.trim()) {
@@ -101,7 +168,11 @@ function Board({
 
       
 
-      <div className="flex gap-5 overflow-x-auto pb-4">
+      <p role="status" className="min-h-6 text-sm text-ink-muted">
+        {isMoving ? "Saving task order…" : "Drag a task above or below another task to move it."}
+      </p>
+      {moveError && <p role="alert" className="mb-3 text-base text-red-800">{moveError}</p>}
+      <div className="flex gap-5 overflow-x-auto pb-4" onDragEnd={endDrag}>
         {sections.map((section) => (
           <Section
             key={section.id}
@@ -109,7 +180,16 @@ function Board({
             issues={issues}
             createIssue={createIssue}
              setIssues= {setIssues}
-            deleteIssue={deleteIssue}
+            draggedIssueId={draggedIssueId}
+            onDragStart={(issueId) => {
+              if (moveInFlight.current) return;
+              setMoveError(null);
+              setDraggedIssueId(issueId);
+            }}
+            dropTarget={dropTarget}
+            onDropTargetChange={updateDropTarget}
+            isMoving={isMoving}
+            moveIssue={moveIssue}
           />
         ))}
       </div>
