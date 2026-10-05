@@ -70,35 +70,56 @@ function Section({
     );
   }
 
-  async function moveIssue(issueId: number, newSectionId: number) {
-    const token = localStorage.getItem("token");
-    const response = await fetch(
-      `http://localhost:3001/issue/${issueId}/move`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          sectionId: newSectionId,
-        }),
-      },
-    );
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.log(data.message);
+  async function moveIssue(
+    issueId: number,
+    newSectionId: number,
+    beforeIssueId: number | null = null,
+  ) {
+    if (!Number.isSafeInteger(issueId) || issueId <= 0) {
       return;
     }
-
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === issueId ? { ...issue, sectionId: newSectionId } : issue,
-      ),
-    );
+  
+    try {
+      const token = localStorage.getItem("token");
+  
+      const response = await fetch(
+        `http://localhost:3001/issue/${issueId}/move`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            sectionId: newSectionId,
+            beforeIssueId,
+          }),
+        },
+      );
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        alert(data.message ?? "Could not move the issue.");
+        return;
+      }
+  
+      const updatedIssues: Issue[] = data.issues;
+  
+      const updatedById = new Map(
+        updatedIssues.map((issue) => [issue.id, issue]),
+      );
+  
+      setIssues((previousIssues) =>
+        previousIssues.map(
+          (issue) => updatedById.get(issue.id) ?? issue,
+        ),
+      );
+    } catch (error) {
+      console.error("Could not move issue:", error);
+      alert("Could not reach the server. Please try again.");
+    }
   }
-
   const stickyColors = [
     "bg-sticky-yellow",
     "bg-sticky-pink",
