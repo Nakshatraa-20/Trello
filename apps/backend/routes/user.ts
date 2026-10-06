@@ -50,8 +50,10 @@ router.post("/signin", async (req, res) => {
     return res.status(500).json({ message: "JWT_SECRET is not configured" });
   }
 
-  const { username, password } = result.data;
-  const user = await prisma.user.findUnique({ where: { username } });
+  const { identifier, password } = result.data;
+  const user = await prisma.user.findFirst({ where: { OR:[{username: identifier},
+    {email:identifier},
+  ] } });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid username or password" });
