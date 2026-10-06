@@ -27,6 +27,17 @@ model User{
   boards        Boards[]
   sentInvitations Invitation[] @relation("SentInvitations")
   receivedInvitations Invitation[] @relation("ReceivedInvitations")
+  emailVerification    EmailVerification?
+}
+
+model EmailVerification{
+  id           Int          @id    @default(autoincrement())
+  codeHash    String
+  expiresAt    DateTime
+
+  userId       Int          @unique
+  user         User         @relation(fields:[userId], references:[id], onDelete:Cascade)
+
 }
 
 
