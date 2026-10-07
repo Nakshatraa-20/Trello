@@ -75,8 +75,14 @@ router.post("/signup", async (req, res) => {
   });
 });
 
-router.post("/user/verify-email", async(req, res)=>{
-  const {userId, code}= req.body
+router.post("/verify-email", async(req, res)=>{
+  const result= verifyEmailSchema.safeParse(req.body)
+  if(!result.success){
+    return res.status(400).json({
+      message: "Invalid input",
+    });
+  }
+  const { userId, code } = result.data
   const verification= await prisma.emailVerification.findUnique({
     where:{
       userId,
