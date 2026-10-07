@@ -28,6 +28,17 @@ model User{
   sentInvitations Invitation[] @relation("SentInvitations")
   receivedInvitations Invitation[] @relation("ReceivedInvitations")
   emailVerification    EmailVerification?
+  accounts            OAuthAccount[]
+
+}
+
+model OAuthAccount{
+  id                 Int       @id   @default(autoincrement())
+  provider           String
+  providerAccountId  String
+  userId              Int
+  user                User    @relation(references:[id], fields:[userId],onDelete:Cascade)
+  @@unique([provider, providerAccountId])
 
 }
 
