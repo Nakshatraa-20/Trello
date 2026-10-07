@@ -75,6 +75,70 @@ router.post("/signup", async (req, res) => {
   });
 });
 
+router.post("/user/verify-email", async(req, res)=>{
+  const {userId, code}= req.body
+  const verification= await prisma.emailVerification.findUnique({
+    where:{
+      userId,
+    }
+  })
+  if (!verification) {
+    return res.status(400).json({
+      message: "Verification code not found",
+    });
+}
+if(verification.expiresAt< new Date()){
+           return res.status(400).json({
+            message:"Verification code has expired"
+           })
+}
+const isCodeValid = await bcrypt.compare(
+  code,
+  verification.codeHash
+);
+if (!isCodeValid) {
+  return res.status(400).json({
+    message: "Invalid verification code",
+  });
+}
+
+await prisma.user.update({
+  where:{
+    id:userId
+  },
+  data:{
+    emailVerified:true,
+  },
+})
+
+await prisma.emailVerification.delete({
+  where:{
+    
+      userId,
+    }
+  })
+  
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({
+      message: "JWT_SECRET is not configured",
+    });
+  }
+
+  const token = jwt.sign(
+    { userId },
+    process.env.JWT_SECRET
+  );
+
+  return res.status(200).json({
+    message: "Email verified successfully",
+    token,
+  });
+
+  
+  
+})
+
+
 router.post("/signin", async (req, res) => {
   const result = signinSchema.safeParse(req.body);
 
