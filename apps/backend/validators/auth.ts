@@ -11,3 +11,8 @@ export const signinSchema= z.object({
     password:z.string().min(1,"password is required")
     
 })
+
+export const verifyEmailSchema = z.object({
+    email: z.email(),
+    code: z.string().length(6),
+  });

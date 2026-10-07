@@ -4,7 +4,7 @@ import prisma from "db/client";
 import bcrypt from "bcrypt";
 import {randomInt} from "crypto"
 import {Resend} from "resend"
-import { signinSchema, signupSchema } from "../validators/auth";
+import { signinSchema, signupSchema,verifyEmailSchema } from "../validators/auth";
 
 const router = express.Router();
 
@@ -82,10 +82,20 @@ router.post("/verify-email", async(req, res)=>{
       message: "Invalid input",
     });
   }
-  const { userId, code } = result.data
+  const { email, code } = result.data
+  const user= await prisma.user.findUnique({
+    where:{
+      email,
+    }
+  })
+  if (!user) {
+    return res.status(400).json({
+      message: "Invalid verification request",
+    });
+  }
   const verification= await prisma.emailVerification.findUnique({
     where:{
-      userId,
+      userId: user.id
     }
   })
   if (!verification) {
@@ -110,7 +120,7 @@ if (!isCodeValid) {
 
 await prisma.user.update({
   where:{
-    id:userId
+    id:user.id
   },
   data:{
     emailVerified:true,
@@ -120,7 +130,7 @@ await prisma.user.update({
 await prisma.emailVerification.delete({
   where:{
     
-      userId,
+      userId:user.id
     }
   })
   
@@ -131,7 +141,7 @@ await prisma.emailVerification.delete({
   }
 
   const token = jwt.sign(
-    { userId },
+    { userId:user.id },
     process.env.JWT_SECRET
   );
 
