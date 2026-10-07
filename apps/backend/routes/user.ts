@@ -2,6 +2,8 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import prisma from "db/client";
 import bcrypt from "bcrypt";
+import {randomInt} from "crypto"
+import {Resend} from "resend"
 import { signinSchema, signupSchema } from "../validators/auth";
 
 const router = express.Router();
@@ -33,8 +35,42 @@ router.post("/signup", async (req, res) => {
     data: { username, password: hashedPassword,email },
   });
 
+  const verificationCode = randomInt(100000, 1000000).toString();
+  const codeHash= await bcrypt.hash(verificationCode, 10)
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await prisma.emailVerification.create({
+    data: {
+      codeHash,
+      expiresAt,
+      userId: user.id,
+    },
+  });
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const { error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "Verify your email",
+    html: `
+      <h2>Verify your email</h2>
+      <p>Your verification code is:</p>
+      <h1>${verificationCode}</h1>
+      <p>This code expires in 10 minutes.</p>
+    `,
+  });
+  
+  if (error) {
+    console.error("Failed to send verification email:", error);
+  
+    return res.status(500).json({
+      message: "Failed to send verification email",
+    });
+  }
+
+
   return res.status(201).json({
-    message: "User created successfully",
+    message: "Account created. Please verify your email",
     user: { id: user.id, username: user.username },
   });
 });
