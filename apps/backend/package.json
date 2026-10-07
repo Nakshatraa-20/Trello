@@ -19,6 +19,7 @@
     "cors": "^2.8.6",
     "db": "*",
     "express": "^5.2.1",
+    "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.3",
     "resend": "^6.32.1",
     "zod": "^4.5.4"

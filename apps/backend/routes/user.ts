@@ -5,8 +5,12 @@ import bcrypt from "bcrypt";
 import {randomInt} from "crypto"
 import {Resend} from "resend"
 import { signinSchema, signupSchema,verifyEmailSchema } from "../validators/auth";
+import { OAuth2Client } from "google-auth-library";
 
 const router = express.Router();
+const googleClient= new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+)
 
 
 router.post("/signup", async (req, res) => {
@@ -183,5 +187,7 @@ router.post("/signin", async (req, res) => {
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
   return res.json({ token });
 });
+
+
 
 export default router;
