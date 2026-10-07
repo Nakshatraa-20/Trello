@@ -174,6 +174,11 @@ router.post("/signin", async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid username or password" });
   }
+  if (!user.emailVerified) {
+    return res.status(403).json({
+      message: "Please verify your email before signing in",
+    });
+  }
 
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
   return res.json({ token });
