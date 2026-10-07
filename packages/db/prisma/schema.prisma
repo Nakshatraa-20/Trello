@@ -17,7 +17,7 @@ datasource db {
 model User{
   id             Int        @id        @default(autoincrement())
   username       String     @unique    
-  password      String
+  password      String?
   email         String      @unique
   emailVerified  Boolean    @default(false)
 
@@ -28,6 +28,7 @@ model User{
   sentInvitations Invitation[] @relation("SentInvitations")
   receivedInvitations Invitation[] @relation("ReceivedInvitations")
   emailVerification    EmailVerification?
+
 }
 
 model EmailVerification{
