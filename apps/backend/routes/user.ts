@@ -157,6 +157,30 @@ await prisma.emailVerification.delete({
   
   
 })
+/* Verify that this is a valid Google ID token and that it was issued for my application's Client ID  */
+router.post("/google", async(req, res)=>{
+  const {credential}= req.body
+  try{
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    })
+
+    const payload= ticket.getPayload()
+    if(!payload|| !payload.sub|| !payload.email|| !payload.email_verified){
+      return res.status(401).json({
+        message:"Invalid Google account information"
+      })
+    }
+    const googleId= payload.sub
+    const email= payload.email
+  }
+  catch (error) {
+    return res.status(401).json({
+      message: "Invalid Google credential",
+    });
+  }
+})
 
 
 router.post("/signin", async (req, res) => {
@@ -188,6 +212,8 @@ router.post("/signin", async (req, res) => {
   return res.json({ token });
 });
 
+router.post("/google",async(req, res)=>{
 
+})
 
 export default router;
