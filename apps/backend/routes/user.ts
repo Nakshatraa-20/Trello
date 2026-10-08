@@ -79,181 +79,139 @@ router.post("/signup", async (req, res) => {
   });
 });
 
-router.post("/verify-email", async(req, res)=>{
-  const result= verifyEmailSchema.safeParse(req.body)
-  if(!result.success){
-    return res.status(400).json({
-      message: "Invalid input",
-    });
-  }
-  const { email, code } = result.data
-  const user= await prisma.user.findUnique({
-    where:{
-      email,
-    }
-  })
-  if (!user) {
-    return res.status(400).json({
-      message: "Invalid verification request",
-    });
-  }
-  const verification= await prisma.emailVerification.findUnique({
-    where:{
-      userId: user.id
-    }
-  })
-  if (!verification) {
-    return res.status(400).json({
-      message: "Verification code not found",
-    });
-}
-if(verification.expiresAt< new Date()){
-           return res.status(400).json({
-            message:"Verification code has expired"
-           })
-}
-const isCodeValid = await bcrypt.compare(
-  code,
-  verification.codeHash
-);
-if (!isCodeValid) {
-  return res.status(400).json({
-    message: "Invalid verification code",
-  });
-}
-
-await prisma.user.update({
-  where:{
-    id:user.id
-  },
-  data:{
-    emailVerified:true,
-  },
-})
-
-await prisma.emailVerification.delete({
-  where:{
-    
-      userId:user.id
-    }
-  })
-  
-  if (!process.env.JWT_SECRET) {
-    return res.status(500).json({
-      message: "JWT_SECRET is not configured",
-    });
+router.post("/verify-email", async (req, res) => {
+  const result = verifyEmailSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ message: "Enter a valid email and six-digit code" });
   }
 
-  const token = jwt.sign(
-    { userId:user.id },
-    process.env.JWT_SECRET
-  );
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    return res.status(500).json({ message: "JWT_SECRET is not configured" });
+  }
 
-  return res.status(200).json({
-    message: "Email verified successfully",
-    token,
-  });
+  try {
+    const { email, code } = result.data;
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid verification request" });
+    }
+    const verification = await prisma.emailVerification.findUnique({
+      where: { userId: user.id },
+    });
+    if (!verification) {
+      return res.status(400).json({ message: "Verification code not found" });
+    }
+    if (verification.expiresAt <= new Date()) {
+      return res.status(400).json({ message: "Verification code has expired" });
+    }
+    if (!(await bcrypt.compare(code, verification.codeHash))) {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
 
-  
-  
-})
-/* Verify that this is a valid Google ID token and that it was issued for my application's Client ID  */
-router.post("/google", async(req, res)=>{
-  const {credential}= req.body
-  try{
+    // Prepare the token first so a signing error cannot consume the code.
+    const token = jwt.sign({ userId: user.id }, jwtSecret);
+    const verified = await prisma.$transaction(async (tx) => {
+      // Only one request can consume this exact, still-valid code.
+      const consumed = await tx.emailVerification.deleteMany({
+        where: {
+          id: verification.id,
+          userId: user.id,
+          codeHash: verification.codeHash,
+          expiresAt: { gt: new Date() },
+        },
+      });
+      if (consumed.count !== 1) return false;
+      await tx.user.update({
+        where: { id: user.id },
+        data: { emailVerified: true },
+      });
+      return true;
+    });
+    if (!verified) {
+      return res.status(400).json({ message: "Verification code has expired or was already used" });
+    }
+    return res.json({ message: "Email verified successfully", token });
+  } catch {
+    return res.status(500).json({ message: "Unable to verify your email. Please try again." });
+  }
+});
+
+router.post("/google", async (req, res) => {
+  const credential = req.body?.credential;
+  if (typeof credential !== "string" || !credential.trim()) {
+    return res.status(400).json({ message: "Google credential is required" });
+  }
+  const jwtSecret = process.env.JWT_SECRET;
+  const googleClientId = process.env.GOOGLE_CLIENT_ID;
+  if (!jwtSecret || !googleClientId) {
+    return res.status(500).json({ message: "Google sign-in is not configured" });
+  }
+
+  let payload: { sub?: string; email?: string; email_verified?: boolean } | undefined;
+  try {
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID
-    })
-
-    const payload= ticket.getPayload()
-    if(!payload|| !payload.sub|| !payload.email|| !payload.email_verified){
-      return res.status(401).json({
-        message:"Invalid Google account information"
-      })
-    }
-    const googleId= payload.sub
-    const email= payload.email
-    const existingAccount= await prisma.oAuthAccount.findUnique({
-      where:{
-        provider_providerAccountId: {
-          provider: "google",
-          providerAccountId: googleId,
-        },
-      },
-        include:{
-          user:true
-        }
-      }
-    )
-
-    if(existingAccount){
-      const user= existingAccount.user
-      if (!process.env.JWT_SECRET) {
-        return res.status(500).json({
-          message: "JWT_SECRET is not configured",
-        });   
-      }
-      const existingUser= await prisma.user.findUnique({
-        where:{
-          email,
-        }
-      })
-
-      if(existingUser){
-        return res.status(409).json({
-          message:"An account with this email already exists. Sign in using your existing method to link Google."
-        })
-      }
-
-      const token= jwt.sign({userId: user.id},process.env.JWT_SECRET, {expiresIn:"7d"})
-
-      const newUser= await prisma.$transaction(async(tx)=>{
-        const user= await tx.user.create({
-          data:{
-            email,
-            emailVerified:true,
-            username:null,
-            password:null
-          }
-        })
-        await tx.oAuthAccount.create({
-          data: {
-            provider: "google",
-            providerAccountId: googleId,
-            userId: user.id,
-          },
-      })
-
-      return user
-    })
-
-      if (!process.env.JWT_SECRET) {
-        return res.status(500).json({
-          message: "JWT_SECRET is not configured",
-        });
-      }
-      
-      const token = jwt.sign(
-        { userId: newUser.id },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
-      );
-      
-      return res.status(201).json({
-        message: "Google account created successfully",
-        token,
-      });
-
-    }
-  }
-  catch (error) {
-    return res.status(401).json({
-      message: "Invalid Google credential",
+      audience: googleClientId,
     });
+    payload = ticket.getPayload();
+  } catch {
+    return res.status(401).json({ message: "Invalid Google credential" });
   }
-})
+  if (!payload?.sub || !payload.email || payload.email_verified !== true) {
+    return res.status(401).json({ message: "Invalid Google account information" });
+  }
 
+  const { sub: googleId, email } = payload;
+  const accountKey = {
+    provider_providerAccountId: {
+      provider: "google",
+      providerAccountId: googleId,
+    },
+  };
+  const signIn = (userId: number, status = 200) => res.status(status).json({
+    message: status === 201 ? "Google account created successfully" : "Signed in successfully",
+    token: jwt.sign({ userId }, jwtSecret, { expiresIn: "7d" }),
+  });
+  const emailConflict = () => res.status(409).json({
+    message: "An account with this email already exists. Sign in using your existing sign-in method.",
+  });
+
+  try {
+    const existingAccount = await prisma.oAuthAccount.findUnique({ where: accountKey });
+    if (existingAccount) {
+      // Google's stable subject identifies returning users, even if their email changes.
+      return signIn(existingAccount.userId);
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) return emailConflict();
+
+    // Create the user and provider link together; never leave an unlinked Google user.
+    const newUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: { email, emailVerified: true, username: null, password: null },
+      });
+      await tx.oAuthAccount.create({
+        data: { provider: "google", providerAccountId: googleId, userId: user.id },
+      });
+      return user;
+    });
+    return signIn(newUser.id, 201);
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+      // Another request may have just created this same Google account.
+      try {
+        const account = await prisma.oAuthAccount.findUnique({ where: accountKey });
+        if (account) return signIn(account.userId);
+        return emailConflict();
+      } catch {
+        return res.status(500).json({ message: "Unable to sign in with Google. Please try again." });
+      }
+    }
+    return res.status(500).json({ message: "Unable to sign in with Google. Please try again." });
+  }
+});
 
 router.post("/signin", async (req, res) => {
   const result = signinSchema.safeParse(req.body);
@@ -276,7 +234,11 @@ router.post("/signin", async (req, res) => {
     })
   }
 
-  if ( !(await bcrypt.compare(password, user.password))) {
+  if (!user.password) {
+    return res.status(401).json({ message: "This account uses Google sign-in. Please continue with Google." });
+  }
+
+  if (!(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid username or password" });
   }
   if (!user.emailVerified) {
@@ -288,9 +250,5 @@ router.post("/signin", async (req, res) => {
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
   return res.json({ token });
 });
-
-router.post("/google",async(req, res)=>{
-
-})
 
 export default router;

@@ -1,9 +1,11 @@
-import { type ComponentProps, type FormEvent, useRef, useState } from "react";
+import { type ComponentProps, type FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Eye, Heart, LockKeyhole, Mail, Sparkles, Star, UserRound, UsersRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Heart, LockKeyhole, Mail, Sparkles, Star, UserRound, UsersRound } from "lucide-react";
 
 import signupDeskScene from "@/assets/signup-desk-scene.png";
 import { Input } from "@/components/ui/input";
+import { GoogleSignInButton } from "./google-signin-button";
+import { authRequest, rememberVerificationEmail } from "@/lib/auth";
 
 export function SignupForm({ className = "", ...props }: ComponentProps<"div">) {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -12,27 +14,37 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
+  const busy = isSubmitting || googleBusy;
+  useEffect(() => () => requestRef.current?.abort(), []);
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (requestRef.current || googleBusy) return;
+    const request = new AbortController();
+    requestRef.current = request;
     setError("");
+    setIsSubmitting(true);
+    const email = emailRef.current?.value.trim() ?? "";
 
-    const response = await fetch("http://localhost:3001/user/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usernameRef.current?.value,
-        email: emailRef.current?.value,
-        password: passwordRef.current?.value,
-      }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      setError(data.message ?? "Unable to create your account.");
-      return;
+    try {
+      await authRequest("/signup", {
+        username: usernameRef.current?.value.trim() ?? "",
+        email,
+        password: passwordRef.current?.value ?? "",
+      }, request.signal);
+      if (request.signal.aborted) return;
+      rememberVerificationEmail(email);
+      navigate("/verify-email", { state: { email } });
+    } catch (cause) {
+      if (!request.signal.aborted) setError(cause instanceof Error ? cause.message : "Unable to create your account.");
+    } finally {
+      requestRef.current = null;
+      if (!request.signal.aborted) setIsSubmitting(false);
     }
-
-    navigate("/login");
   }
 
   return (
@@ -104,12 +116,13 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
               <p className="mt-3 text-xl text-ink-muted">Join and start organising your boards.</p>
             </div>
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} aria-busy={busy}>
+              <fieldset disabled={busy} className="space-y-6">
               <label className="block space-y-2 text-xl font-bold">
                 <span>Username</span>
                 <span className="relative block">
                   <UserRound className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
-                  <Input ref={usernameRef} id="username" type="text" placeholder="Choose a username" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <Input ref={usernameRef} id="username" name="username" autoComplete="username" minLength={3} type="text" placeholder="Choose a username" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
                 </span>
               </label>
 
@@ -117,7 +130,7 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
                 <span>Email</span>
                 <span className="relative block">
                   <Mail className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
-                  <Input ref={emailRef} id="email" type="email" placeholder="Enter your email" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <Input ref={emailRef} id="email" name="email" autoComplete="email" type="email" placeholder="Enter your email" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
                 </span>
               </label>
 
@@ -125,17 +138,24 @@ export function SignupForm({ className = "", ...props }: ComponentProps<"div">) 
                 <span>Password</span>
                 <span className="relative block">
                   <LockKeyhole className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
-                  <Input ref={passwordRef} id="password" type="password" placeholder="Create a password" required className="h-16 rounded-xl border-paper-border bg-paper px-14 pr-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
-                  <Eye className="pointer-events-none absolute right-5 top-1/2 h-6 w-6 -translate-y-1/2 text-ink-muted" />
+                  <Input ref={passwordRef} id="password" name="password" minLength={6} autoComplete="new-password" type={showPassword ? "text" : "password"} placeholder="Create a password" required className="h-16 rounded-xl border-paper-border bg-paper px-14 pr-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 md:text-xl focus-visible:border-pink-400 focus-visible:ring-pink-300/35" />
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-ink-muted focus-visible:outline-2 focus-visible:outline-[#c96f6a]">
+                    {showPassword ? <EyeOff aria-hidden="true" className="h-6 w-6" /> : <Eye aria-hidden="true" className="h-6 w-6" />}
+                  </button>
                 </span>
               </label>
 
-              {error && <p className="rounded-lg bg-sticky-pink/45 px-4 py-3 text-center text-base text-ink">{error}</p>}
+              {error && <p role="alert" className="rounded-lg bg-sticky-pink/45 px-4 py-3 text-center text-base text-ink">{error}</p>}
 
-              <button type="submit" className="flex h-16 w-full items-center justify-center gap-3 rounded-xl bg-[#c96f6a] text-2xl font-bold text-paper-card shadow-md transition hover:-translate-y-0.5 hover:bg-[#b85c5e]">
-                Create account <ArrowRight className="h-7 w-7" />
+              <button type="submit" className="flex h-16 w-full items-center justify-center gap-3 rounded-xl bg-[#c96f6a] text-2xl font-bold text-paper-card shadow-md transition hover:-translate-y-0.5 hover:bg-[#b85c5e] disabled:cursor-wait disabled:opacity-70">
+                {isSubmitting ? "Creating account…" : "Create account"} {!isSubmitting && <ArrowRight className="h-7 w-7" />}
               </button>
+              </fieldset>
             </form>
+            <GoogleSignInButton disabled={isSubmitting} onBusyChange={setGoogleBusy} />
+            <p className="mt-5 text-center text-base text-ink-muted">
+              Already received a code? <Link to="/verify-email" className="font-bold underline underline-offset-4">Verify your email</Link>
+            </p>
 
             <p className="mt-8 text-center text-lg leading-relaxed text-ink-muted">
               By creating an account, you agree to our<br className="hidden sm:block" />{" "}

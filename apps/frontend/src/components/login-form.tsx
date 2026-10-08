@@ -1,10 +1,12 @@
 import { cn } from "cn";
-import { type ComponentProps, type FormEvent, useRef, useState } from "react";
+import { type ComponentProps, type FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff, Heart, LockKeyhole, Sparkles, UserRound } from "lucide-react";
 
 import signupDeskScene from "@/assets/signup-desk-scene.png";
 import { Input } from "@/components/ui/input";
+import { GoogleSignInButton } from "./google-signin-button";
+import { authRequest, finishSignIn, rememberVerificationEmail } from "@/lib/auth";
 
 export function LoginForm({ className, ...props }: ComponentProps<"div">) {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -14,32 +16,32 @@ export function LoginForm({ className, ...props }: ComponentProps<"div">) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
+  const busy = isSubmitting || googleBusy;
+  useEffect(() => () => requestRef.current?.abort(), []);
+
   async function boardLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (requestRef.current || googleBusy) return;
+    const request = new AbortController();
+    requestRef.current = request;
     setError("");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:3001/user/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: usernameRef.current?.value,
-          password: passwordRef.current?.value,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok || !data.token) {
-        setError(data.message ?? "Unable to sign in. Please check your details.");
-        return;
-      }
-      localStorage.setItem("token", data.token);
-      navigate("/dashboard");
-    } catch {
-      setError("Unable to connect. Please try again in a moment.");
+      const data = await authRequest("/signin", {
+        identifier: usernameRef.current?.value.trim() ?? "",
+        password: passwordRef.current?.value ?? "",
+      }, request.signal);
+      if (request.signal.aborted) return;
+      finishSignIn(data.token);
+      navigate("/dashboard", { replace: true });
+    } catch (cause) {
+      if (!request.signal.aborted) setError(cause instanceof Error ? cause.message : "Unable to sign in.");
     } finally {
-      setIsSubmitting(false);
+      requestRef.current = null;
+      if (!request.signal.aborted) setIsSubmitting(false);
     }
   }
 
@@ -88,12 +90,13 @@ export function LoginForm({ className, ...props }: ComponentProps<"div">) {
               </p>
             </div>
 
-            <form className="space-y-6" onSubmit={boardLogin} aria-busy={isSubmitting}>
+            <form onSubmit={boardLogin} aria-busy={busy}>
+              <fieldset disabled={busy} className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="username" className="block text-xl font-bold">Username</label>
+                <label htmlFor="username" className="block text-xl font-bold">Username or email</label>
                 <div className="relative">
                   <UserRound aria-hidden="true" className="pointer-events-none absolute left-5 top-1/2 z-10 h-6 w-6 -translate-y-1/2 text-ink-muted" strokeWidth={2} />
-                  <Input ref={usernameRef} id="username" name="username" type="text" autoComplete="username" placeholder="Enter your username" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 focus-visible:border-pink-400 focus-visible:ring-pink-300/35 md:text-xl" />
+                  <Input ref={usernameRef} id="username" name="identifier" type="text" autoComplete="username" placeholder="Enter your username or email" required className="h-16 rounded-xl border-paper-border bg-paper px-14 font-handwritten text-xl font-normal text-ink placeholder:text-ink-muted/70 focus-visible:border-pink-400 focus-visible:ring-pink-300/35 md:text-xl" />
                 </div>
               </div>
 
@@ -114,7 +117,15 @@ export function LoginForm({ className, ...props }: ComponentProps<"div">) {
                 {isSubmitting ? "Signing in…" : "Sign in"}
                 {!isSubmitting && <ArrowRight aria-hidden="true" className="h-7 w-7" strokeWidth={2} />}
               </button>
+              </fieldset>
             </form>
+            <GoogleSignInButton disabled={isSubmitting} onBusyChange={setGoogleBusy} />
+            <p className="mt-5 text-center text-base text-ink-muted">
+              Have a verification code? <Link to="/verify-email" onClick={() => {
+                const identifier = usernameRef.current?.value.trim() ?? "";
+                if (identifier) rememberVerificationEmail(identifier.includes("@") ? identifier : "");
+              }} className="font-bold underline underline-offset-4">Verify your email</Link>
+            </p>
 
             <p className="mt-8 text-center text-lg leading-relaxed text-ink-muted">
               Don&apos;t have an account?{" "}

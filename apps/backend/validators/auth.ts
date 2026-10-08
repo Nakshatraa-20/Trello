@@ -14,5 +14,5 @@ export const signinSchema= z.object({
 
 export const verifyEmailSchema = z.object({
     email: z.email(),
-    code: z.string().length(6),
+    code: z.string().regex(/^\d{6}$/, "Enter a six-digit verification code"),
   });
