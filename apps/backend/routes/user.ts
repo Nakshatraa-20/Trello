@@ -174,6 +174,46 @@ router.post("/google", async(req, res)=>{
     }
     const googleId= payload.sub
     const email= payload.email
+    const existingAccount= await prisma.oAuthAccount.findUnique({
+      where:{
+        provider_providerAccountId: {
+          provider: "google",
+          providerAccountId: googleId,
+        },
+      },
+        include:{
+          user:true
+        }
+      }
+    )
+
+    if(existingAccount){
+      const user= existingAccount.user
+      if (!process.env.JWT_SECRET) {
+        return res.status(500).json({
+          message: "JWT_SECRET is not configured",
+        });   
+      }
+      const existingUser= await prisma.user.findUnique({
+        where:{
+          email,
+        }
+      })
+
+      if(existingUser){
+        return res.status(409).json({
+          message:"An account with this email already exists. Sign in using your existing method to link Google."
+        })
+      }
+
+      const token= jwt.sign({userId: user.id},process.env.JWT_SECRET, {expiresIn:"7d"})
+
+      return res.status(200).json({
+        message: "Google sign-in successful",
+        token,
+      });
+
+    }
   }
   catch (error) {
     return res.status(401).json({
@@ -198,8 +238,13 @@ router.post("/signin", async (req, res) => {
   const user = await prisma.user.findFirst({ where: { OR:[{username: identifier},
     {email:identifier},
   ] } });
+  if(!user){
+    return res.status(403).json({
+      message:"user does not exist"
+    })
+  }
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  if ( !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid username or password" });
   }
   if (!user.emailVerified) {
