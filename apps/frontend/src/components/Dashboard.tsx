@@ -106,12 +106,10 @@ function AccentLines({ className = "" }: { className?: string }) {
 
 function Dashboard() {
   const [personalBoards, setPersonalBoards] = useState<Board[]>([]);
-  const [workspaceBoards, setWorkspaceBoards] = useState<Board[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
 
   useEffect(() => {
     getPersonalBoards();
-    getWorkspaceBoards();
     getWorkspaceOrganisations();
   }, []);
 
@@ -156,21 +154,6 @@ function Dashboard() {
     }
 
     setPersonalBoards((prev) => [...prev, data.board]);
-  }
-
-  async function getWorkspaceBoards() {
-    const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:3001/board/workspace", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      console.log(data.message);
-      return;
-    }
-    setWorkspaceBoards(data.boards);
   }
 
   async function getWorkspaceOrganisations() {
@@ -222,33 +205,6 @@ function Dashboard() {
     await getWorkspaceOrganisations();
   }
 
-  async function createWorkspaceBoards(orgId: number) {
-    const title = prompt("Enter board name");
-    if (!title) {
-      return;
-    }
-    const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:3001/board/org-board-post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-
-      body: JSON.stringify({
-        title,
-        orgId,
-      }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      console.log(data.message);
-      return;
-    }
-
-    setWorkspaceBoards((prev) => [...prev, data.board]);
-  }
   const boardColors = [
     "bg-board-rose",
     "bg-board-sage",

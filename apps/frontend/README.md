@@ -105,4 +105,4 @@ Google button API: https://developers.google.com/identity/gsi/web/reference/js-r
 
 The frontend expects a successful `/verify-email` or `/google` response to include a non-empty `token`. Backend errors appear on the relevant form. Requests time out instead of leaving the forms permanently busy.
 
-At the time this frontend was added, `apps/backend/routes/user.ts` still had a duplicate `token` declaration and misplaced existing/new-account branches in `/google`, an empty duplicate `/google` route, and a nullable-password error in `/signin`. Those backend issues must be fixed before a real end-to-end Google sign-in can succeed. Expired OTPs require a backend resend-code endpoint to support recovery.
+The backend supports returning and new Google accounts, rejects automatic linking to an existing email account, and handles Google-only users without comparing a null password. Email verification consumes the code and verifies the user in one database transaction. Start it with `bun run --cwd apps/backend start` from the repository root so both backend environment files are loaded. Expired OTPs still require a backend resend-code endpoint to support recovery.

@@ -2,16 +2,17 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import prisma from "db/client";
 import bcrypt from "bcrypt";
-import {randomInt} from "crypto"
-import {Resend} from "resend"
-import { signinSchema, signupSchema,verifyEmailSchema } from "../validators/auth";
+import { randomInt } from "crypto";
+import { Resend } from "resend";
+import {
+  signinSchema,
+  signupSchema,
+  verifyEmailSchema,
+} from "../validators/auth";
 import { OAuth2Client } from "google-auth-library";
 
 const router = express.Router();
-const googleClient= new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID
-)
-
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 router.post("/signup", async (req, res) => {
   const result = signupSchema.safeParse(req.body);
@@ -20,15 +21,12 @@ router.post("/signup", async (req, res) => {
     return res.status(400).json({ message: "Invalid input" });
   }
 
-  const { username, password,email } = result.data;
-  const userExists = await prisma.user.findFirst({ 
-    where:{
-      OR:[
-        {username: result.data.username},
-        {email: result.data.email}
-      ]}
-    
-   });
+  const { username, password, email } = result.data;
+  const userExists = await prisma.user.findFirst({
+    where: {
+      OR: [{ username: result.data.username }, { email: result.data.email }],
+    },
+  });
 
   if (userExists) {
     return res.status(409).json({ message: "User already exists" });
@@ -36,11 +34,11 @@ router.post("/signup", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { username, password: hashedPassword,email },
+    data: { username, password: hashedPassword, email },
   });
 
   const verificationCode = randomInt(100000, 1000000).toString();
-  const codeHash= await bcrypt.hash(verificationCode, 10)
+  const codeHash = await bcrypt.hash(verificationCode, 10);
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   await prisma.emailVerification.create({
@@ -51,7 +49,7 @@ router.post("/signup", async (req, res) => {
     },
   });
 
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const { error } = await resend.emails.send({
     from: "onboarding@resend.dev",
     to: email,
@@ -63,15 +61,14 @@ router.post("/signup", async (req, res) => {
       <p>This code expires in 10 minutes.</p>
     `,
   });
-  
+
   if (error) {
     console.error("Failed to send verification email:", error);
-  
+
     return res.status(500).json({
       message: "Failed to send verification email",
     });
   }
-
 
   return res.status(201).json({
     message: "Account created. Please verify your email",
@@ -82,7 +79,9 @@ router.post("/signup", async (req, res) => {
 router.post("/verify-email", async (req, res) => {
   const result = verifyEmailSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ message: "Enter a valid email and six-digit code" });
+    return res
+      .status(400)
+      .json({ message: "Enter a valid email and six-digit code" });
   }
 
   const jwtSecret = process.env.JWT_SECRET;
@@ -129,11 +128,15 @@ router.post("/verify-email", async (req, res) => {
       return true;
     });
     if (!verified) {
-      return res.status(400).json({ message: "Verification code has expired or was already used" });
+      return res
+        .status(400)
+        .json({ message: "Verification code has expired or was already used" });
     }
     return res.json({ message: "Email verified successfully", token });
   } catch {
-    return res.status(500).json({ message: "Unable to verify your email. Please try again." });
+    return res
+      .status(500)
+      .json({ message: "Unable to verify your email. Please try again." });
   }
 });
 
@@ -145,10 +148,13 @@ router.post("/google", async (req, res) => {
   const jwtSecret = process.env.JWT_SECRET;
   const googleClientId = process.env.GOOGLE_CLIENT_ID;
   if (!jwtSecret || !googleClientId) {
-    return res.status(500).json({ message: "Google sign-in is not configured" });
+    return res
+      .status(500)
+      .json({ message: "Google sign-in is not configured" });
   }
 
-  let payload: { sub?: string; email?: string; email_verified?: boolean } | undefined;
+  let payload:
+    { sub?: string; email?: string; email_verified?: boolean } | undefined;
   try {
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
@@ -159,7 +165,9 @@ router.post("/google", async (req, res) => {
     return res.status(401).json({ message: "Invalid Google credential" });
   }
   if (!payload?.sub || !payload.email || payload.email_verified !== true) {
-    return res.status(401).json({ message: "Invalid Google account information" });
+    return res
+      .status(401)
+      .json({ message: "Invalid Google account information" });
   }
 
   const { sub: googleId, email } = payload;
@@ -169,16 +177,24 @@ router.post("/google", async (req, res) => {
       providerAccountId: googleId,
     },
   };
-  const signIn = (userId: number, status = 200) => res.status(status).json({
-    message: status === 201 ? "Google account created successfully" : "Signed in successfully",
-    token: jwt.sign({ userId }, jwtSecret, { expiresIn: "7d" }),
-  });
-  const emailConflict = () => res.status(409).json({
-    message: "An account with this email already exists. Sign in using your existing sign-in method.",
-  });
+  const signIn = (userId: number, status = 200) =>
+    res.status(status).json({
+      message:
+        status === 201
+          ? "Google account created successfully"
+          : "Signed in successfully",
+      token: jwt.sign({ userId }, jwtSecret, { expiresIn: "7d" }),
+    });
+  const emailConflict = () =>
+    res.status(409).json({
+      message:
+        "An account with this email already exists. Sign in using your existing sign-in method.",
+    });
 
   try {
-    const existingAccount = await prisma.oAuthAccount.findUnique({ where: accountKey });
+    const existingAccount = await prisma.oAuthAccount.findUnique({
+      where: accountKey,
+    });
     if (existingAccount) {
       // Google's stable subject identifies returning users, even if their email changes.
       return signIn(existingAccount.userId);
@@ -193,23 +209,40 @@ router.post("/google", async (req, res) => {
         data: { email, emailVerified: true, username: null, password: null },
       });
       await tx.oAuthAccount.create({
-        data: { provider: "google", providerAccountId: googleId, userId: user.id },
+        data: {
+          provider: "google",
+          providerAccountId: googleId,
+          userId: user.id,
+        },
       });
       return user;
     });
     return signIn(newUser.id, 201);
   } catch (error) {
-    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
       // Another request may have just created this same Google account.
       try {
-        const account = await prisma.oAuthAccount.findUnique({ where: accountKey });
+        const account = await prisma.oAuthAccount.findUnique({
+          where: accountKey,
+        });
         if (account) return signIn(account.userId);
         return emailConflict();
       } catch {
-        return res.status(500).json({ message: "Unable to sign in with Google. Please try again." });
+        return res
+          .status(500)
+          .json({
+            message: "Unable to sign in with Google. Please try again.",
+          });
       }
     }
-    return res.status(500).json({ message: "Unable to sign in with Google. Please try again." });
+    return res
+      .status(500)
+      .json({ message: "Unable to sign in with Google. Please try again." });
   }
 });
 
@@ -225,17 +258,22 @@ router.post("/signin", async (req, res) => {
   }
 
   const { identifier, password } = result.data;
-  const user = await prisma.user.findFirst({ where: { OR:[{username: identifier},
-    {email:identifier},
-  ] } });
-  if(!user){
+  const user = await prisma.user.findFirst({
+    where: { OR: [{ username: identifier }, { email: identifier }] },
+  });
+  if (!user) {
     return res.status(403).json({
-      message:"user does not exist"
-    })
+      message: "user does not exist",
+    });
   }
 
   if (!user.password) {
-    return res.status(401).json({ message: "This account uses Google sign-in. Please continue with Google." });
+    return res
+      .status(401)
+      .json({
+        message:
+          "This account uses Google sign-in. Please continue with Google.",
+      });
   }
 
   if (!(await bcrypt.compare(password, user.password))) {

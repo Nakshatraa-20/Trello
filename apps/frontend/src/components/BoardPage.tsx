@@ -24,7 +24,6 @@ function BoardPage() {
   const {boardId} = useParams()
 
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [issueTitle, setIssueTitle] = useState<Record<number, string>>({});
 
   useEffect(() => {
     async function getSections() {
@@ -115,10 +114,6 @@ function BoardPage() {
     }
 
     setIssues((prev) => [...prev, data.issue]);
-    setIssueTitle((prev) => ({
-        ...prev,
-        [sectionId]: "",
-      }));
   }
   async function deleteIssue(issueId: number) {
     const token = localStorage.getItem("token");
