@@ -208,8 +208,40 @@ router.post("/google", async(req, res)=>{
 
       const token= jwt.sign({userId: user.id},process.env.JWT_SECRET, {expiresIn:"7d"})
 
-      return res.status(200).json({
-        message: "Google sign-in successful",
+      const newUser= await prisma.$transaction(async(tx)=>{
+        const user= await tx.user.create({
+          data:{
+            email,
+            emailVerified:true,
+            username:null,
+            password:null
+          }
+        })
+        await tx.oAuthAccount.create({
+          data: {
+            provider: "google",
+            providerAccountId: googleId,
+            userId: user.id,
+          },
+      })
+
+      return user
+    })
+
+      if (!process.env.JWT_SECRET) {
+        return res.status(500).json({
+          message: "JWT_SECRET is not configured",
+        });
+      }
+      
+      const token = jwt.sign(
+        { userId: newUser.id },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+      
+      return res.status(201).json({
+        message: "Google account created successfully",
         token,
       });
 
