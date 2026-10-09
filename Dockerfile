@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 # Install workspace dependencies
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --filter backend
 
 # Generate Prisma Client
 WORKDIR /app/packages/db
