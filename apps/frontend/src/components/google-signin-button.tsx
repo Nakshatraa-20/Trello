@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { authRequest, finishSignIn } from "@/lib/auth";
@@ -16,6 +16,21 @@ export function GoogleSignInButton({
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const buttonContainerRef = useRef<HTMLDivElement>(null);
+  const [buttonWidth, setButtonWidth] = useState(240);
+
+  useEffect(() => {
+    const container = buttonContainerRef.current;
+    if (!container) return;
+    const resize = () => {
+      const width = Math.floor(container.getBoundingClientRect().width);
+      if (width > 0) setButtonWidth(Math.min(350, width));
+    };
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   async function handleGoogleSuccess(response: {
     credential?: string;
@@ -55,7 +70,7 @@ export function GoogleSignInButton({
   }
 
   return (
-    <div className="mt-7 space-y-4">
+    <div className="mt-3 space-y-2">
       <div className="flex items-center gap-4 text-base text-ink-muted">
         <span className="h-px flex-1 bg-paper-border" />
         or
@@ -63,7 +78,8 @@ export function GoogleSignInButton({
       </div>
 
       <div
-        className={`flex justify-center ${
+        ref={buttonContainerRef}
+        className={`mx-auto flex w-full min-w-0 max-w-[350px] justify-center ${
           disabled || busy
             ? "pointer-events-none opacity-60"
             : ""
@@ -78,7 +94,7 @@ export function GoogleSignInButton({
           size="large"
           shape="pill"
           text="continue_with"
-          width="350"
+          width={String(buttonWidth)}
         />
       </div>
 

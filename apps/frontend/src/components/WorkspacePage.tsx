@@ -273,8 +273,8 @@ export default function WorkspacePage() {
             >
               <UsersRound className="h-8 w-8 rotate-6" strokeWidth={1.7} />
             </span>
-            <div className="min-w-0 pt-1">
-              <h1 className="break-words text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+            <div className="min-w-0 pt-3 sm:pt-4">
+              <h1 className="break-words text-2xl font-bold lowercase leading-8 tracking-tight sm:text-3xl sm:leading-9">
                 {membership?.org.name || "My workspace"}
               </h1>
               <p className="mt-3 max-w-xl text-lg leading-relaxed text-ink-muted sm:text-xl">
