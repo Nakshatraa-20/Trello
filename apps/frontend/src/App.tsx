@@ -1,5 +1,5 @@
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import Dashboard from "./components/Dashboard";
 import { SignupForm } from "./components/signup-form";
 import { LoginForm } from "./components/login-form";
@@ -7,6 +7,7 @@ import { VerifyEmailForm } from "./components/verify-email-form";
 import BoardPage from "./components/BoardPage";
 import WorkspacePage from "./components/WorkspacePage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/verify-email" element={<VerifyEmailForm />} />
         
-        
+        <Route path="/" element={<Navigate to="/signup" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/board/:boardId" element={<BoardPage />} />
         <Route path="/workspace/:orgId" element={<WorkspacePage />} />
