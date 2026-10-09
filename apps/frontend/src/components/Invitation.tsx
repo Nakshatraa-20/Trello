@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "../config";
 type Invitation = {
   id: number;
   token: string;
@@ -22,7 +23,7 @@ export default function Invitations() {
       if (!token) {
         return;
       }
-      const response = await fetch("http://localhost:3001/invitation/me", {
+      const response = await fetch(`${API_URL}/invitation/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -43,7 +44,7 @@ export default function Invitations() {
       return;
     }
     const response = await fetch(
-      `http://localhost:3001/invitation/${invitationToken}/accept`,
+      `${API_URL}/invitation/${invitationToken}/accept`,
       {
         method: "POST",
         headers: {
@@ -69,7 +70,7 @@ export default function Invitations() {
       return;
     }
     const response = await fetch(
-      `http://localhost:3001/invitation/${invitationToken}/decline`,
+      `${API_URL}/invitation/${invitationToken}/decline`,
       {
         method: "POST",
         headers: {

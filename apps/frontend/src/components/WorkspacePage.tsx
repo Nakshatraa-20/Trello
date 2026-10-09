@@ -15,10 +15,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import InviteMemberModal, { PaperDialog } from "./InviteMemberModal";
-
-const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3001"
-).replace(/\/$/, "");
+import { API_URL } from "../config";
 interface Workspace {
   id: number;
   name: string;

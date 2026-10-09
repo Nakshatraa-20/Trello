@@ -1,4 +1,5 @@
 import { useRef, useState, type DragEvent } from "react";
+import { API_URL } from "../config";
 
 export interface DropTarget {
   sectionId: number;
@@ -59,7 +60,7 @@ function Section({
     const newCompletedValue = !issue.completed;
     const token = localStorage.getItem("token");
     const response = await fetch(
-      `http://localhost:3001/issue/${issue.id}/completed`,
+      `${API_URL}/issue/${issue.id}/completed`,
       {
         method: "PATCH",
         headers: {

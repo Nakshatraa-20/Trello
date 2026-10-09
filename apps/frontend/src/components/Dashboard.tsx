@@ -4,6 +4,7 @@ import { Pin, Plus, LayoutDashboard, UsersRound, SquareCheck } from "lucide-reac
 import Invitation from "./Invitation"
 import { PaperDialog } from "./InviteMemberModal";
 import preview from "../data/dashboard-preview.json";
+import { API_URL } from "../config";
 
 // Keep the decision stable through StrictMode and client-side navigation.
 // On refresh this map resets, while the session flag keeps examples hidden.
@@ -22,7 +23,6 @@ function showPreviewOnce() {
   return show;
 }
 
-const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/$/, "");
 interface Board {
   id: number;
   title: string;

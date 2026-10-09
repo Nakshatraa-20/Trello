@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import Board from "./Board";
 import Navbar from "./Navbar";
 import {useParams} from "react-router-dom"
+import { API_URL } from "../config";
 
 interface Issue {
   id: number;
@@ -29,7 +30,7 @@ function BoardPage() {
     async function getSections() {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:3001/section/${boardId}`, {
+        const response = await fetch(`${API_URL}/section/${boardId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -47,7 +48,7 @@ function BoardPage() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:3001/issue/issues/board/${boardId}`,
+        `${API_URL}/issue/issues/board/${boardId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,7 +69,7 @@ function BoardPage() {
     }
     const token = localStorage.getItem("token");
 
-    const response = await fetch(`http://localhost:3001/section/post-section`, {
+    const response = await fetch(`${API_URL}/section/post-section`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -92,7 +93,7 @@ function BoardPage() {
 
   async function createIssue(sectionId: number, title: string) {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3001/issue/create-issue`, {
+    const response = await fetch(`${API_URL}/issue/create-issue`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -117,7 +118,7 @@ function BoardPage() {
   }
   async function deleteIssue(issueId: number) {
     const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3001/issue/${issueId}`, {
+    const response = await fetch(`${API_URL}/issue/${issueId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

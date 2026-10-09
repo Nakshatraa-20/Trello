@@ -1,5 +1,6 @@
 import { useRef, useState, type RefObject } from "react";
 import Section, { type DropTarget } from "./Section";
+import { API_URL } from "../config";
 
 interface SectionData {
   id: number;
@@ -71,7 +72,7 @@ function Board({
     setMoveError(null);
 
     try {
-      const response = await fetch(`http://localhost:3001/issue/${issueId}/move`, {
+      const response = await fetch(`${API_URL}/issue/${issueId}/move`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

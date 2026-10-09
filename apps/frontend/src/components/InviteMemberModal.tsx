@@ -7,10 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { Mail, Send, UsersRound, X } from "lucide-react";
-
-const API_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:3001"
-).replace(/\/$/, "");
+import { API_URL } from "../config";
 
 export function PaperDialog({
   title,
