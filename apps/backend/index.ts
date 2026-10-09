@@ -13,7 +13,12 @@ app.use(
     ],
   })
 );
-
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Kanvas backend is running",
+  });
+});
 app.use("/", routes);
 
 const PORT = Number(process.env.PORT) || 3001;
