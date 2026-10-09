@@ -6,9 +6,13 @@ import { LoginForm } from "./components/login-form";
 import { VerifyEmailForm } from "./components/verify-email-form";
 import BoardPage from "./components/BoardPage";
 import WorkspacePage from "./components/WorkspacePage";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
   return (
+    <GoogleOAuthProvider
+      clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+    >
     <BrowserRouter>
       <Routes>
         <Route path="/signup" element={<SignupForm />} />
@@ -19,6 +23,7 @@ function App() {
         <Route path="/workspace/:orgId" element={<WorkspacePage />} />
       </Routes>
     </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }
 

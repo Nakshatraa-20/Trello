@@ -1,4 +1,5 @@
 import { afterAll, beforeEach, expect, mock, test } from "bun:test";
+import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 // Mock external boundaries before importing the router. No real email or DB access.
@@ -170,7 +171,15 @@ async function request(path: string, body: unknown) {
       return response;
     },
   };
-  await route.stack[0].handle({ body }, response);
+  const handler = route.stack[0]?.handle;
+  if (!handler) throw new Error(`Missing handler for route ${path}`);
+  await handler(
+    { body } as Request,
+    response as Response,
+    (error?: unknown) => {
+      throw error ?? new Error(`Unexpected next() call in route ${path}`);
+    },
+  );
   return result;
 }
 function tokenUser(token: string) {
