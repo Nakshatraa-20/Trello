@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Pin } from "lucide-react";
+import { Pin, Plus } from "lucide-react";
 import Board from "./Board";
 import Invitation from "./Invitation"
+import { PaperDialog } from "./InviteMemberModal";
+
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/$/, "");
 interface Board {
   id: number;
   title: string;
   userId: number | null;
   orgId: number | null;
   description: string | null;
-  emoji: String | null;
+  emoji: string | null;
 }
 
 interface Organization {
@@ -104,9 +107,120 @@ function AccentLines({ className = "" }: { className?: string }) {
   );
 }
 
+function CreatePersonalBoardModal({ onClose, onCreated }: {
+  onClose: () => void;
+  onCreated: (board: Board) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [emoji, setEmoji] = useState("🌷");
+  const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
+
+  async function createBoard(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (requestRef.current) return;
+    if (!title.trim()) {
+      setError("Give your board a name first.");
+      return;
+    }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Please sign in again to create a board.");
+      return;
+    }
+    const request = new AbortController();
+    requestRef.current = request;
+    setCreating(true);
+    setError("");
+    try {
+      const response = await fetch(`${API_URL}/board/personal-board`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: title.trim(), description: description.trim(), emoji: emoji.trim() || "🌷" }),
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(15_000)]),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(
+        typeof data?.message === "string" ? data.message : "Unable to create your board. Please try again.",
+      );
+      if (!data?.board || typeof data.board.id !== "number" || typeof data.board.title !== "string") {
+        throw new Error("The board could not be loaded. Please refresh the dashboard.");
+      }
+      if (request.signal.aborted) return;
+      onCreated(data.board);
+      onClose();
+    } catch (cause) {
+      if (!request.signal.aborted) setError(
+        cause instanceof TypeError ? "Unable to reach the server. Please try again." :
+        cause instanceof Error ? cause.message : "Unable to create your board.",
+      );
+    } finally {
+      requestRef.current = null;
+      if (!request.signal.aborted) setCreating(false);
+    }
+  }
+
+  const inputClass = "w-full rounded-xl border border-paper-border bg-paper px-4 text-xl outline-none placeholder:text-ink-muted/60 focus:border-[#c96f6a] focus:ring-2 focus:ring-sticky-pink/40";
+
+  return (
+    <PaperDialog
+      title="Make room for a new idea."
+      description="A little space for your plans, projects, and everything in between."
+      onClose={onClose}
+      busy={creating}
+    >
+      <form onSubmit={createBoard} aria-busy={creating}>
+        <fieldset disabled={creating} className="space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="personal-board-title" className="block text-xl font-bold">Board name</label>
+            <input id="personal-board-title" autoFocus required maxLength={100}
+              value={title} onChange={(event) => setTitle(event.target.value)}
+              placeholder="e.g. My next big project" className={`h-14 ${inputClass}`} />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="personal-board-description" className="block text-xl font-bold">
+              Description <span className="text-base font-normal text-ink-muted">(optional)</span>
+            </label>
+            <textarea id="personal-board-description" rows={3} maxLength={500}
+              value={description} onChange={(event) => setDescription(event.target.value)}
+              placeholder="What would you like to bring to life?" className={`resize-y py-3 ${inputClass}`} />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="personal-board-emoji" className="block text-xl font-bold">Board emoji</label>
+            <div className="flex flex-wrap items-center gap-2">
+              <input id="personal-board-emoji" aria-label="Board emoji" maxLength={32}
+                value={emoji} onChange={(event) => setEmoji(event.target.value)}
+                className="h-12 w-16 rounded-xl border border-paper-border bg-paper text-center text-2xl outline-none focus:border-[#c96f6a] focus:ring-2 focus:ring-sticky-pink/40" />
+              {[{ icon: "🌷", name: "Tulip" }, { icon: "💡", name: "Light bulb" }, { icon: "📚", name: "Books" }, { icon: "🎨", name: "Art palette" }, { icon: "✨", name: "Sparkles" }].map(({ icon, name }) => (
+                <button key={icon} type="button" aria-label={`Use ${name} emoji`} aria-pressed={emoji === icon}
+                  onClick={() => setEmoji(icon)}
+                  className={`h-10 w-10 rounded-lg border text-xl transition hover:bg-sticky-pink/30 focus-visible:outline-2 focus-visible:outline-[#c96f6a] ${emoji === icon ? "border-[#c96f6a] bg-sticky-pink/30" : "border-transparent bg-paper"}`}>
+                  {icon}
+                </button>
+              ))}
+            </div>
+          </div>
+          {error && <p role="alert" className="rounded-lg bg-sticky-pink/35 px-4 py-3 text-lg">{error}</p>}
+          <button type="submit" className="flex h-13 w-full items-center justify-center gap-2 rounded-lg bg-[#c96f6a] text-xl font-bold text-paper-card shadow-sm transition hover:bg-[#b85c5e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c96f6a] disabled:cursor-wait disabled:opacity-60">
+            <Plus aria-hidden="true" className="h-5 w-5" />
+            {creating ? "Creating your board…" : "Create board"}
+          </button>
+        </fieldset>
+      </form>
+    </PaperDialog>
+  );
+}
+
 function Dashboard() {
   const [personalBoards, setPersonalBoards] = useState<Board[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [createBoardOpen, setCreateBoardOpen] = useState(false);
 
   useEffect(() => {
     getPersonalBoards();
@@ -115,7 +229,7 @@ function Dashboard() {
 
   async function getPersonalBoards() {
     const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:3001/board/personal", {
+    const response = await fetch(`${API_URL}/board/personal`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -123,37 +237,6 @@ function Dashboard() {
     const data = await response.json();
     console.log(data);
     setPersonalBoards(data.boards);
-  }
-
-  async function createPersonalBoard() {
-    const title = prompt("enter board name");
-    if (!title) return;
-
-    const description = prompt("enter board description");
-    if (!description) return;
-    const emoji = prompt("choose an emoji for your board");
-    if (!emoji) return;
-    const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:3001/board/personal-board", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        title,
-        description,
-        emoji,
-      }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      console.log(data.message);
-      return;
-    }
-
-    setPersonalBoards((prev) => [...prev, data.board]);
   }
 
   async function getWorkspaceOrganisations() {
@@ -286,8 +369,9 @@ function Dashboard() {
                 </p>
               </Link>
             ))}
-            <div
-              onClick={createPersonalBoard}
+            <button
+              type="button"
+              onClick={() => setCreateBoardOpen(true)}
               className="
     mt-3 flex h-40 w-60 -rotate-[0.5deg] cursor-pointer flex-col
     items-center justify-center gap-3
@@ -313,7 +397,7 @@ function Dashboard() {
               <span className="text-lg font-bold text-ink-muted">
                 Create a new board
               </span>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -364,6 +448,12 @@ function Dashboard() {
           </div>
         </div>
       </main>
+      {createBoardOpen && (
+        <CreatePersonalBoardModal
+          onClose={() => setCreateBoardOpen(false)}
+          onCreated={(board) => setPersonalBoards((previous) => [...previous, board])}
+        />
+      )}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed bottom-9 right-12 z-10 h-32 w-72"
