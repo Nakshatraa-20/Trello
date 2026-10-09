@@ -159,3 +159,29 @@
 --color-board-blue: #C5D3D9;
 --color-board-lilac: #D5C8D8;
 }
+.scrapbook-strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 55px;
+  height: 100vh;
+
+  background-color: #fce8eb;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(230, 150, 165, 0.25) 50%,
+      transparent 50%
+    ),
+    linear-gradient(
+      rgba(230, 150, 165, 0.25) 50%,
+      transparent 50%
+    );
+
+  background-size: 24px 24px;
+
+  z-index: 0;
+  pointer-events: none;
+}
+

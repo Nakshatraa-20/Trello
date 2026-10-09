@@ -1,0 +1,11 @@
+{
+  "boards": [
+    { "id": 101, "title": "College", "description": "Coursework, little deadlines, and big ambitions.", "emoji": "📚", "tasks": 5 },
+    { "id": 102, "title": "Personal Tasks", "description": "A little space for everyday plans.", "emoji": "🌷", "tasks": 4 },
+    { "id": 103, "title": "Project Ideas", "description": "Save a spark. Make something wonderful.", "emoji": "💡", "tasks": 3 }
+  ],
+  "workspaces": [
+    { "id": 201, "name": "Development Team", "description": "Build, learn, and bring ideas to life together.", "members": 6, "boards": 4 },
+    { "id": 202, "name": "College Projects", "description": "Shared notes and a little teamwork.", "members": 4, "boards": 2 }
+  ]
+}

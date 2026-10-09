@@ -20,14 +20,7 @@ function Navbar() {
           />
         </div>
       </div>
-      <aside className="pointer-events-none absolute top-12 right-[23%] z-20 hidden h-36 w-32 -rotate-3 border border-paper-border bg-paper-card/95 p-4 shadow-md lg:block">
-        <div className="absolute -top-3 left-1/2 h-5 w-16 -translate-x-1/2 rotate-2 rounded-sm border border-white/25 bg-[#e8c790]/75" />
-        <p className="font-handwritten text-2xl leading-7 text-ink">
-          Good<br />
-          things<br />
-          take time <span className="text-accent">♥</span>
-        </p>
-      </aside>
+
     </header>
   );
 }

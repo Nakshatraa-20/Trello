@@ -14,6 +14,48 @@ import { OAuth2Client } from "google-auth-library";
 const router = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+router.get("/dashboard", async (req, res) => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return res.status(500).json({ message: "Sign-in is not configured" });
+  const authorization = req.headers.authorization;
+  if (!authorization?.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Please sign in to view your dashboard." });
+  }
+  let identity: { userId: number; displayName?: string };
+  try {
+    const decoded = jwt.verify(authorization.slice(7), secret);
+    if (typeof decoded === "string" || !Number.isSafeInteger(decoded.userId) || decoded.userId <= 0) {
+      throw new Error("Invalid identity");
+    }
+    identity = { userId: decoded.userId, displayName: typeof decoded.displayName === "string" ? decoded.displayName : undefined };
+  } catch {
+    return res.status(401).json({ message: "Your session has expired. Please sign in again." });
+  }
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: identity.userId },
+      select: { id: true, username: true, email: true },
+    });
+    if (!user) return res.status(401).json({ message: "Please sign in again." });
+    const totalTasks = await prisma.issue.count({
+      where: {
+        board: {
+          OR: [
+            { userId: user.id, orgId: null },
+            { org: { membership: { some: { userId: user.id } } } },
+          ],
+        },
+      },
+    });
+    return res.json({
+      user: { id: user.id, displayName: identity.displayName?.trim() || user.username || user.email.split("@")[0] },
+      totalTasks,
+    });
+  } catch {
+    return res.status(500).json({ message: "Unable to load your dashboard. Please try again." });
+  }
+});
+
 router.post("/signup", async (req, res) => {
   const result = signupSchema.safeParse(req.body);
 
@@ -154,7 +196,7 @@ router.post("/google", async (req, res) => {
   }
 
   let payload:
-    { sub?: string; email?: string; email_verified?: boolean } | undefined;
+    { sub?: string; email?: string; email_verified?: boolean; name?: string; given_name?: string } | undefined;
   try {
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
@@ -171,6 +213,7 @@ router.post("/google", async (req, res) => {
   }
 
   const { sub: googleId, email } = payload;
+  const displayName = payload.given_name?.trim() || payload.name?.trim() || email.split("@")[0];
   const accountKey = {
     provider_providerAccountId: {
       provider: "google",
@@ -183,7 +226,7 @@ router.post("/google", async (req, res) => {
         status === 201
           ? "Google account created successfully"
           : "Signed in successfully",
-      token: jwt.sign({ userId }, jwtSecret, { expiresIn: "7d" }),
+      token: jwt.sign({ userId, displayName }, jwtSecret, { expiresIn: "7d" }),
     });
   const emailConflict = () =>
     res.status(409).json({

@@ -7,7 +7,6 @@ import { VerifyEmailForm } from "./components/verify-email-form";
 import BoardPage from "./components/BoardPage";
 import WorkspacePage from "./components/WorkspacePage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import DashboardLayout from "./components/DashboardLayout"
 
 function App() {
   return (
@@ -20,11 +19,11 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/verify-email" element={<VerifyEmailForm />} />
         
-        <Route element={<DashboardLayout />}>
+        
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/board/:boardId" element={<BoardPage />} />
         <Route path="/workspace/:orgId" element={<WorkspacePage />} />
-        </Route>
+        
       </Routes>
     </BrowserRouter>
     </GoogleOAuthProvider>

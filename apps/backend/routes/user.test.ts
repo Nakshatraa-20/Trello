@@ -31,7 +31,7 @@ let consumedByAnotherRequest = false;
 let raceAccountCreation = false;
 let databaseFailure = false;
 let payload:
-  { sub?: string; email?: string; email_verified?: boolean } | undefined;
+  { sub?: string; email?: string; email_verified?: boolean; name?: string; given_name?: string } | undefined;
 let invalidGoogleCredential = false;
 
 const compare = mock(
@@ -57,10 +57,11 @@ mock.module("google-auth-library", () => ({
 }));
 
 const db = {
+  issue: { count: mock(async (_options: unknown) => 7) },
   user: {
     findUnique: mock(
       async ({ where }: any) =>
-        users.find((user) => user.email === where.email) ?? null,
+        users.find((user) => where.id !== undefined ? user.id === where.id : user.email === where.email) ?? null,
     ),
     findFirst: mock(
       async ({ where }: any) =>
@@ -155,7 +156,7 @@ mock.module("db/client", () => ({
 }));
 const { default: router } = await import("./user");
 
-async function request(path: string, body: unknown) {
+async function request(path: string, body: unknown, authorization?: string) {
   const route = router.stack.find(
     (layer: any) => layer.route?.path === path,
   )?.route;
@@ -174,7 +175,7 @@ async function request(path: string, body: unknown) {
   const handler = route.stack[0]?.handle;
   if (!handler) throw new Error(`Missing handler for route ${path}`);
   await handler(
-    { body } as Request,
+    { body, headers: { authorization } } as Request,
     response as Response,
     (error?: unknown) => {
       throw error ?? new Error(`Unexpected next() call in route ${path}`);
@@ -217,6 +218,7 @@ beforeEach(() => {
       false;
   process.env.JWT_SECRET = "auth-test-secret";
   process.env.GOOGLE_CLIENT_ID = "auth-test-client";
+  db.issue.count.mockClear();
   compare.mockClear();
   sendEmail.mockClear();
   verifyIdToken.mockClear();
@@ -425,4 +427,46 @@ test("signup stores a hashed six-digit code and sends through the mocked email p
   expect(verification!.codeHash).toMatch(/^hash:\d{6}$/);
   expect(sendEmail).toHaveBeenCalledTimes(1);
   expect(result.body.token).toBeUndefined();
+});
+
+
+test("Google's verified name is carried into the signed dashboard identity", async () => {
+  payload!.given_name = "Alex";
+  payload!.name = "Alex Example";
+  const login = await request("/google", { credential: "test-id-token" });
+  const result = await request("/dashboard", {}, `Bearer ${login.body.token}`);
+  expect(result.status).toBe(200);
+  expect(result.body.user).toEqual({ id: 2, displayName: "Alex" });
+  expect(result.body.totalTasks).toBe(7);
+  expect(result.body.user.password).toBeUndefined();
+  expect(result.body.user.email).toBeUndefined();
+});
+
+test("dashboard falls back to username or email name for older sessions", async () => {
+  const token = jwt.sign({ userId: 1 }, "auth-test-secret");
+  expect((await request("/dashboard", {}, `Bearer ${token}`)).body.user.displayName).toBe("alice");
+  users[0]!.username = null;
+  expect((await request("/dashboard", {}, `Bearer ${token}`)).body.user.displayName).toBe("alice");
+});
+
+test("dashboard task count is scoped to personal boards and current workspace membership", async () => {
+  const token = jwt.sign({ userId: 1 }, "auth-test-secret");
+  await request("/dashboard", {}, `Bearer ${token}`);
+  expect(db.issue.count).toHaveBeenCalledWith({ where: { board: { OR: [
+    { userId: 1, orgId: null },
+    { org: { membership: { some: { userId: 1 } } } },
+  ] } } });
+});
+
+test("dashboard rejects missing, forged, expired and invalid identities before counting tasks", async () => {
+  for (const authorization of [
+    undefined, "Bearer invalid",
+    `Bearer ${jwt.sign({ userId: 1 }, "wrong-secret")}`,
+    `Bearer ${jwt.sign({ userId: 1 }, "auth-test-secret", { expiresIn: -1 })}`,
+    `Bearer ${jwt.sign({ userId: "1" }, "auth-test-secret")}`,
+    `Bearer ${jwt.sign({ userId: 999 }, "auth-test-secret")}`,
+  ]) {
+    expect((await request("/dashboard", {}, authorization)).status).toBe(401);
+  }
+  expect(db.issue.count).not.toHaveBeenCalled();
 });

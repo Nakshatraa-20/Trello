@@ -1,9 +1,26 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Pin, Plus } from "lucide-react";
-import Board from "./Board";
+import { Pin, Plus, LayoutDashboard, UsersRound, SquareCheck } from "lucide-react";
 import Invitation from "./Invitation"
 import { PaperDialog } from "./InviteMemberModal";
+import preview from "../data/dashboard-preview.json";
+
+// Keep the decision stable through StrictMode and client-side navigation.
+// On refresh this map resets, while the session flag keeps examples hidden.
+let previewVisibleThisVisit: boolean | undefined;
+function showPreviewOnce() {
+  if (previewVisibleThisVisit !== undefined) return previewVisibleThisVisit;
+  let show = false;
+  try {
+    const key = "dashboard-preview-v2";
+    show = sessionStorage.getItem(key) !== "seen";
+    sessionStorage.setItem(key, "seen");
+  } catch {
+    // Skip examples if storage is unavailable so they cannot reappear on refresh.
+  }
+  previewVisibleThisVisit = show;
+  return show;
+}
 
 const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/$/, "");
 interface Board {
@@ -221,71 +238,95 @@ function Dashboard() {
   const [personalBoards, setPersonalBoards] = useState<Board[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [createBoardOpen, setCreateBoardOpen] = useState(false);
+  const [profile, setProfile] = useState<{ id: number; displayName: string } | null>(null);
+  const [totalTasks, setTotalTasks] = useState<number | null>(null);
+  const [showExamples, setShowExamples] = useState(false);
+  const [loading, setLoading] = useState({ boards: true, workspaces: true, summary: true });
+  const [boardError, setBoardError] = useState("");
+  const [workspaceError, setWorkspaceError] = useState("");
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
-    getPersonalBoards();
-    getWorkspaceOrganisations();
-  }, []);
-
-  async function getPersonalBoards() {
+    const controller = new AbortController();
+    // Examples are frontend-only and do not depend on the profile API loading.
+    setShowExamples(showPreviewOnce());
+    setLoading({ boards: true, workspaces: true, summary: true });
+    setBoardError("");
+    setWorkspaceError("");
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_URL}/board/personal`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    console.log(data);
-    setPersonalBoards(data.boards);
-  }
-
-  async function getWorkspaceOrganisations() {
-    const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:3001/organisation/getorg", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      console.log(data.message);
-      return;
+    async function request(path: string) {
+      if (!token) throw new Error("Please sign in to see your saved data.");
+      const response = await fetch(`${API_URL}${path}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(
+        typeof data?.message === "string" ? data.message : "Unable to load saved data. Please try again.",
+      );
+      return data;
     }
-    setMemberships(data.memberships);
+    function finished(part: "boards" | "workspaces" | "summary") {
+      if (!controller.signal.aborted) setLoading((previous) => ({ ...previous, [part]: false }));
+    }
+
+    // Each resource updates independently: the optional summary must never hide saved boards.
+    void request("/board/personal").then((data) => {
+      if (!Array.isArray(data?.boards)) throw new Error("Unable to load your boards. Please try again.");
+      if (!controller.signal.aborted) setPersonalBoards(data.boards);
+    }).catch((cause) => {
+      if (!controller.signal.aborted) setBoardError(cause instanceof Error ? cause.message : "Unable to load your boards.");
+    }).finally(() => finished("boards"));
+
+    void request("/organisation/getorg").then((data) => {
+      if (!Array.isArray(data?.memberships)) throw new Error("Unable to load your workspaces. Please try again.");
+      if (!controller.signal.aborted) setMemberships(data.memberships);
+    }).catch((cause) => {
+      if (!controller.signal.aborted) setWorkspaceError(cause instanceof Error ? cause.message : "Unable to load your workspaces.");
+    }).finally(() => finished("workspaces"));
+
+    void request("/user/dashboard").then((data) => {
+      if (!data?.user || typeof data.user.displayName !== "string" || !Number.isInteger(data.totalTasks)) {
+        throw new Error("Dashboard summary unavailable");
+      }
+      if (controller.signal.aborted) return;
+      setProfile(data.user);
+      setTotalTasks(data.totalTasks);
+    }).catch(() => {
+      // Older backends may not expose the summary yet. Keep the main dashboard usable.
+      if (!controller.signal.aborted) setTotalTasks(null);
+    }).finally(() => finished("summary"));
+    return () => controller.abort();
+  }, [reload]);
+
+  function dismissExamples() {
+    previewVisibleThisVisit = false;
+    setShowExamples(false);
   }
+
+  function showSampleData() {
+    previewVisibleThisVisit = true;
+    setShowExamples(true);
+  }
+
   async function createOrganization() {
     const name = prompt("Enter workspace name");
-    if (!name) return;
-
+    if (!name?.trim()) return;
     const description = prompt("Enter workspace description");
-    if (!description) return;
-
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
-      "http://localhost:3001/organisation/create-org",
-      {
+    if (!description?.trim()) return;
+    try {
+      const response = await fetch(`${API_URL}/organisation/create-org`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name,
-          description,
-        }),
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.log(data.message);
-      return;
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+        body: JSON.stringify({ name: name.trim(), description: description.trim() }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.message || "Unable to create your workspace.");
+      dismissExamples();
+      setReload((value) => value + 1);
+    } catch (cause) {
+      setWorkspaceError(cause instanceof Error ? cause.message : "Unable to create your workspace.");
     }
-
-    console.log(data.organisation);
-    await getWorkspaceOrganisations();
   }
 
   const boardColors = [
@@ -295,11 +336,19 @@ function Dashboard() {
     "bg-board-lilac",
   ];
 
+  const exampleBoards = showExamples ? preview.boards : [];
+  const exampleWorkspaces = showExamples ? preview.workspaces : [];
+  const summaries = [
+    { label: "Personal boards", unavailable: loading.boards || !!boardError, count: personalBoards.length + exampleBoards.length, Icon: LayoutDashboard, color: "bg-board-rose" },
+    { label: "Workspaces", unavailable: loading.workspaces || !!workspaceError, count: memberships.length + exampleWorkspaces.length, Icon: UsersRound, color: "bg-board-sage" },
+    { label: "Total tasks", unavailable: loading.summary || totalTasks === null, count: (totalTasks ?? 0) + exampleBoards.reduce((sum, board) => sum + board.tasks, 0), Icon: SquareCheck, color: "bg-board-lilac" },
+  ];
+
   return (
-    <div className="min-h-screen bg-paper text-ink font-handwritten">
-      <main className="mx-auto max-w-[1280px] px-8 py-8">
-        <header className="relative mb-10">
-          <h1 className="text-5xl font-bold text-ink">Your boards</h1>
+    <div className="relative min-h-screen bg-paper text-ink font-handwritten">
+      <main className="mx-auto max-w-[1280px] px-8 pb-8 pt-16">
+        <header className="relative mb-10 min-h-40">
+          <h1 className="text-5xl font-bold text-ink">{profile ? `Hey, ${profile.displayName}!` : "Your boards"}</h1>
           <div className="mt-3 h-1 w-20 -rotate-1 rounded-full bg-[#C96F6A]" />
           <p className="mt-2 text-lg text-ink-muted">
             Plan projects, organise work, and keep everything moving.
@@ -324,6 +373,28 @@ function Dashboard() {
             </div>
           </div>
         </header>
+        {showExamples ? (
+          <div role="status" className="mb-6 flex flex-wrap items-center gap-3 text-base text-ink-muted">
+            <p>Examples are included in the totals. Refresh to remove them; your saved data stays.</p>
+            <button type="button" onClick={dismissExamples} className="font-bold underline underline-offset-4">Clear examples</button>
+          </div>
+        ) : (
+          <div className="mb-6 text-base text-ink-muted">
+            <button type="button" onClick={showSampleData} className="font-bold underline underline-offset-4">Show sample data</button>
+          </div>
+        )}
+        <section aria-label="Dashboard overview" aria-busy={loading.boards || loading.workspaces || loading.summary} className="mb-12 flex flex-wrap gap-4">
+          {summaries.map(({ label, count, unavailable, Icon, color }, index) => (
+            <div key={label} className={`relative mt-3 flex h-32 w-60 items-center gap-5 rounded-md border border-paper-border p-6 shadow-md ${index % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${color}`}>
+              <CardAttachment id={index} />
+              <Icon aria-hidden="true" className="h-8 w-8 shrink-0 text-ink-muted" strokeWidth={1.7} />
+              <div>
+                <p className="text-4xl font-bold text-ink">{!showExamples && unavailable ? "—" : count}</p>
+                <h2 className="text-lg text-ink-muted">{label}</h2>
+              </div>
+            </div>
+          ))}
+        </section>
         <div>
           <div className="flex items-end justify-between border-b border-paper-border pb-3">
             <div>
@@ -348,6 +419,9 @@ function Dashboard() {
             </div>
           </div>
 
+          {boardError && <p role="alert" className="mt-4 text-base text-ink-muted">
+            {boardError} <button type="button" onClick={() => setReload((value) => value + 1)} className="font-bold underline underline-offset-4">Retry</button>
+          </p>}
           <div className="mt-4  flex flex-wrap gap-4 ">
             {personalBoards.map((board) => (
               <Link
@@ -368,6 +442,18 @@ function Dashboard() {
                   Open board →
                 </p>
               </Link>
+            ))}
+            {exampleBoards.map((board) => (
+              <article key={`example-${board.id}`} aria-label={`${board.title}, example board`}
+                className={`relative mt-3 flex h-40 w-60 flex-col rounded-md border border-paper-border p-6 shadow-md ${board.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[board.id % boardColors.length]}`}>
+                <CardAttachment id={board.id} />
+                <div className="flex items-start justify-between">
+                  <h3 className="text-xl font-semibold">{board.title}</h3>
+                  <span className="text-2xl">{board.emoji}</span>
+                </div>
+                <p className="mt-2 text-sm text-ink-muted">{board.description}</p>
+                <p className="mt-auto text-sm font-semibold text-ink-muted">{board.tasks} tasks · Example</p>
+              </article>
             ))}
             <button
               type="button"
@@ -428,6 +514,9 @@ function Dashboard() {
             </button>
           </div>
 
+          {workspaceError && <p role="alert" className="mt-4 text-base text-ink-muted">
+            {workspaceError} <button type="button" onClick={() => setReload((value) => value + 1)} className="font-bold underline underline-offset-4">Retry</button>
+          </p>}
           <div className="mt-6 flex flex-wrap gap-4">
             {memberships.map((membership) => (
               <Link
@@ -445,13 +534,25 @@ function Dashboard() {
                 </p>
               </Link>
             ))}
+            {exampleWorkspaces.map((workspace) => (
+              <article key={`example-${workspace.id}`} aria-label={`${workspace.name}, example workspace`}
+                className={`relative mt-3 flex h-40 w-72 flex-col rounded-md border border-paper-border p-6 shadow-md ${workspace.id % 2 === 0 ? "rotate-[0.5deg]" : "-rotate-[0.5deg]"} ${boardColors[workspace.id % boardColors.length]}`}>
+                <CardAttachment id={workspace.id} />
+                <h3 className="text-xl font-semibold">{workspace.name}</h3>
+                <p className="mt-2 text-sm text-ink-muted">{workspace.description}</p>
+                <p className="mt-auto text-sm font-semibold text-ink-muted">{workspace.members} members · {workspace.boards} boards · Example</p>
+              </article>
+            ))}
           </div>
         </div>
       </main>
       {createBoardOpen && (
         <CreatePersonalBoardModal
           onClose={() => setCreateBoardOpen(false)}
-          onCreated={(board) => setPersonalBoards((previous) => [...previous, board])}
+          onCreated={(board) => {
+            dismissExamples();
+            setPersonalBoards((previous) => [...previous, board]);
+          }}
         />
       )}
       <div

@@ -116,8 +116,7 @@ function Board({
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-10">
-      <div className="mb-10 flex justify-between 
-      gap-6 ">
+      <div className="mb-10 flex flex-wrap items-start justify-between gap-6">
        <div> <p className="text-lg font-medium text-ink-muted">
           Project space
         </p>
@@ -131,14 +130,22 @@ function Board({
         </p>
         </div>
 
-        <div className="mb-8 flex items-center justify-end gap-3">
+      <aside className="pointer-events-none relative hidden h-36 w-32 shrink-0 -rotate-3 border border-paper-border bg-paper-card/95 p-4 shadow-md lg:block">
+        <div className="absolute -top-3 left-1/2 h-5 w-16 -translate-x-1/2 rotate-2 rounded-sm border border-white/25 bg-[#e8c790]/75" />
+        <p className="font-handwritten text-2xl leading-7 text-ink">
+          Good<br />
+          things<br />
+          take time <span className="text-accent">♥</span>
+        </p>
+      </aside>
+        <div className="mb-8 flex max-w-full flex-wrap items-center justify-end gap-3">
         {showSectionInput ? (
           <>
             <input
               ref={newSectionTitle}
               autoFocus
               placeholder="New Section Title"
-              className="w-64 border-b-2 border-paper-border bg-transparent px-2 py-2 text-lg text-ink outline-none placeholder:text-ink-muted focus:border-accent"
+              className="w-64 max-w-full border-b-2 border-paper-border bg-transparent px-2 py-2 text-lg text-ink outline-none placeholder:text-ink-muted focus:border-accent"
             />
             <button
               onClick={handleCreateSection}
